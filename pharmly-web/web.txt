@@ -1,0 +1,4 @@
+web app using next.js [ts]
+- landing page
+- billing page
+- previous page

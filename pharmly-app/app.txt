@@ -1,0 +1,3 @@
+pharmaly app
+- kotlin + android [all version support]
+- only for medical store side
