@@ -36,4 +36,15 @@ const billSchema = new Schema<BillDocument>(
   { timestamps: true }
 );
 
+/* 🔥 INDEXES */
+
+/** For public bill lookup */
+billSchema.index({ _id: 1 });
+
+/** For customer bill history */
+billSchema.index({ customerId: 1, createdAt: -1 });
+
+/** For store dashboards (future use) */
+billSchema.index({ storeId: 1, createdAt: -1 });
+
 export const Bill = model<BillDocument>("Bill", billSchema);
