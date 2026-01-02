@@ -2,16 +2,21 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { loginStore } from "@/api/auth.api"; // API import
+import { useRouter } from "next/navigation"; // Used for redirection
+// NOTE: Make sure this import path is correct in your project
+import { registerStore } from "@/api/auth.api";
 
-// Asset imports (Ensure these match your project)
+// Asset imports
 import Appicon from "@/../public/globe.svg";
 import { PharmlyAuthBg } from "@/../public/index";
 
 import {
+    Building2,
     Phone,
+    MapPin,
     Lock,
+    Percent,
+    MapPin as CityIcon,
     Eye,
     EyeOff,
     Shield,
@@ -19,24 +24,31 @@ import {
     TrendingUp,
     Smartphone,
     LucideIcon,
+    CheckCircle2,
     Loader2,
-    AlertCircle,
-    LogIn
+    AlertCircle
 } from "lucide-react";
 
 // --- Types ---
 
-interface LoginFormData {
+// 1. Define the shape of your form data
+interface RegisterFormData {
+    name: string;
     whatsappNumber: string;
+    address: string;
+    city: string;
+    discountPercent: number | string; // string allowed for empty input state
     password: string;
 }
 
+// 2. Props for the Button
 interface SimpleButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
     fullWidth?: boolean;
     isLoading?: boolean;
 }
 
+// 3. Props for the Form Field
 interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon: LucideIcon;
@@ -138,32 +150,43 @@ function FormField({
 
 // --- Main Page ---
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const router = useRouter();
 
     // UI State
     const [showPassword, setShowPassword] = useState(false);
+    const [termsAccepted, setTermsAccepted] = useState(false);
 
-    // Logic State
+    // Logic State (from your code snippet)
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [form, setForm] = useState<LoginFormData>({
+    const [form, setForm] = useState<RegisterFormData>({
+        name: "",
         whatsappNumber: "",
+        address: "",
+        city: "",
+        discountPercent: 5,
         password: ""
     });
 
+    // Handler for inputs
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const submit = async (e: React.FormEvent) => {
+    // Handler for submission
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setLoading(true);
 
         try {
-            const res = await loginStore(form);
+            // API Call
+            const res = await registerStore({
+                ...form,
+                discountPercent: Number(form.discountPercent)
+            });
 
             // Save token
             if (typeof window !== "undefined") {
@@ -171,12 +194,14 @@ export default function LoginPage() {
             }
 
             // Redirect to dashboard
-            router.push("/dashboard");
+            router.push("/dashboard"); // Better Next.js practice than window.location
+
         } catch (err: unknown) {
+            // Type safe error handling
             if (err instanceof Error) {
                 setError(err.message);
             } else {
-                setError("Invalid credentials. Please try again.");
+                setError("An unexpected error occurred. Please try again.");
             }
         } finally {
             setLoading(false);
@@ -222,20 +247,20 @@ export default function LoginPage() {
                                 <span className="text-2xl font-bold text-gray-900 tracking-tight">Pharmly</span>
                             </div>
                             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                                Welcome back
+                                Create your account
                             </h1>
                             <p className="text-gray-500 text-base">
-                                Enter your details to access your dashboard.
+                                Start managing your pharmacy smarter today.
                             </p>
                         </div>
 
                         {/* Mobile Header (Title only) */}
                         <div className="lg:hidden space-y-2">
                             <h1 className="text-2xl font-bold text-gray-900">
-                                Log In
+                                Get Started
                             </h1>
                             <p className="text-gray-500 text-sm">
-                                Access your medical store dashboard
+                                Create a free account for your store
                             </p>
                         </div>
 
@@ -249,11 +274,22 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        <form onSubmit={submit} className="space-y-6">
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            {/* Medical Name */}
+                            <FormField
+                                label="Medical Store Name"
+                                name="name" // Matches state key
+                                value={form.name}
+                                onChange={handleChange}
+                                placeholder="Ex. Apollo Pharmacy"
+                                icon={Building2}
+                                required
+                            />
+
                             {/* WhatsApp Number */}
                             <FormField
                                 label="WhatsApp Number"
-                                name="whatsappNumber"
+                                name="whatsappNumber" // Matches state key
                                 value={form.whatsappNumber}
                                 onChange={handleChange}
                                 type="tel"
@@ -262,23 +298,55 @@ export default function LoginPage() {
                                 required
                             />
 
+                            {/* Address */}
+                            <FormField
+                                label="Store Address"
+                                name="address" // Matches state key
+                                value={form.address}
+                                onChange={handleChange}
+                                placeholder="Shop No, Street, Area"
+                                icon={MapPin}
+                                required
+                            />
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* City */}
+                                <FormField
+                                    label="City"
+                                    name="city" // Matches state key
+                                    value={form.city}
+                                    onChange={handleChange}
+                                    placeholder="Mumbai"
+                                    icon={CityIcon}
+                                    required
+                                />
+
+                                {/* Discount */}
+                                <FormField
+                                    label="Discount %"
+                                    name="discountPercent" // Matches state key
+                                    value={form.discountPercent}
+                                    onChange={handleChange}
+                                    type="number"
+                                    placeholder="0"
+                                    min={0}
+                                    max={100}
+                                    icon={Percent}
+                                />
+                            </div>
+
                             {/* Password */}
                             <div className="space-y-1.5 group">
-                                <div className="flex justify-between items-center ml-1">
-                                    <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                                        Password
-                                    </label>
-                                    <a href="#" className="text-xs text-teal-600 font-medium hover:underline">
-                                        Forgot Password?
-                                    </a>
-                                </div>
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide ml-1">
+                                    Password
+                                </label>
                                 <div className="relative flex items-center bg-white border border-gray-200 rounded-xl focus-within:border-teal-500 focus-within:ring-4 focus-within:ring-teal-500/10 transition-all shadow-sm">
                                     <div className="pl-4 pr-3 py-3 text-gray-400 group-focus-within:text-teal-600 transition-colors">
                                         <Lock className="w-5 h-5" />
                                     </div>
                                     <div className="h-6 w-px bg-gray-200 mx-1" />
                                     <input
-                                        name="password"
+                                        name="password" // Matches state key
                                         value={form.password}
                                         onChange={handleChange}
                                         type={showPassword ? "text" : "password"}
@@ -300,33 +368,51 @@ export default function LoginPage() {
                                 </div>
                             </div>
 
+                            {/* Terms */}
+                            <div className="flex items-start gap-3 py-2">
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="terms"
+                                        checked={termsAccepted}
+                                        onChange={(e) => setTermsAccepted(e.target.checked)}
+                                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 transition-all checked:border-teal-600 checked:bg-teal-600 hover:border-teal-500"
+                                    />
+                                    <CheckCircle2 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                </div>
+                                <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer select-none">
+                                    I agree to the{" "}
+                                    <a href="#" className="text-teal-600 hover:text-teal-700 font-medium underline underline-offset-2">
+                                        Terms of Service
+                                    </a>{" "}
+                                    and{" "}
+                                    <a href="#" className="text-teal-600 hover:text-teal-700 font-medium underline underline-offset-2">
+                                        Privacy Policy
+                                    </a>
+                                </label>
+                            </div>
+
                             {/* Submit Button */}
                             <SimpleButton
                                 type="submit"
+                                disabled={!termsAccepted}
                                 isLoading={loading}
-                                className="mt-2"
                             >
-                                <span className="flex items-center gap-2">
-                                    {loading ? "Logging in..." : "Log In"}
-                                    {!loading && <LogIn className="w-4 h-4" />}
-                                </span>
+                                {loading ? "Creating Account..." : "Create Account"}
                             </SimpleButton>
 
-                            {/* Register Link */}
+                            {/* Login Link */}
                             <p className="text-center text-gray-600 text-sm">
-                                Don&apos;t have an account?{" "}
-                                <a
-                                    href="/register"
-                                    className="text-teal-600 hover:text-teal-700 font-bold hover:underline underline-offset-4"
-                                >
-                                    Register now
+                                Already have an account?{" "}
+                                <a href="/login" className="text-teal-600 hover:text-teal-700 font-bold hover:underline underline-offset-4">
+                                    Log in
                                 </a>
                             </p>
                         </form>
                     </div>
                 </div>
 
-                {/* RIGHT SIDE - Image/Brand Section (Identical Style) */}
+                {/* RIGHT SIDE - Image/Brand Section (Unchanged visual) */}
                 <div className="hidden lg:flex flex-col relative bg-gray-900 overflow-hidden">
                     {/* Background Image */}
                     <div className="absolute inset-0">
@@ -370,15 +456,15 @@ export default function LoginPage() {
                                     </h2>
 
                                     <p className="text-teal-100/80 text-center text-lg mb-10 leading-relaxed">
-                                        Access your store analytics, manage inventory, and track sales in real-time.
+                                        The modern operating system for forward-thinking pharmacies.
                                     </p>
 
                                     <div className="grid grid-cols-2 gap-4">
                                         {[
-                                            { icon: Shield, text: "Secure Access" },
-                                            { icon: FileText, text: "GST Ready" },
-                                            { icon: TrendingUp, text: "Live Sales" },
-                                            { icon: Smartphone, text: "Anywhere" },
+                                            { icon: Shield, text: "Secure Data" },
+                                            { icon: FileText, text: "GST Billing" },
+                                            { icon: TrendingUp, text: "Analytics" },
+                                            { icon: Smartphone, text: "Mobile App" },
                                         ].map((feature, idx) => (
                                             <div key={idx} className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
                                                 <feature.icon className="w-5 h-5 text-teal-300" />
