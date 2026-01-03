@@ -1,4 +1,6 @@
-const API_BASE = "https://api.pharmly.co.in";
+// Always use relative path - Next.js will proxy to https://api.pharmly.co.in via rewrites
+// This avoids CORS issues in both development and production
+const API_BASE = '';
 
 export interface RegisterPayload {
   name: string;
@@ -15,7 +17,6 @@ export const registerStore = async (payload: RegisterPayload) => {
     headers: {
       "Content-Type": "application/json"
     },
-    credentials: "include", // Important for CORS with auth
     body: JSON.stringify(payload)
   });
 
@@ -39,7 +40,6 @@ export const loginStore = async (payload: LoginPayload) => {
     headers: {
       "Content-Type": "application/json"
     },
-    credentials: "include", // Important for CORS with auth
     body: JSON.stringify(payload)
   });
 
