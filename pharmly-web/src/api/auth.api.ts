@@ -33,7 +33,7 @@ export interface LoginPayload {
 }
 
 export const loginStore = async (payload: LoginPayload) => {
-  const res = await fetch(`${API_BASE}/stores/login`, {
+  const res = await fetch(`${API_BASE}/api/stores/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

@@ -10,6 +10,12 @@ export const requireAuth = (
   res: Response,
   next: NextFunction
 ): Response | void => {
+
+  // ✅ ADD THIS (MOST IMPORTANT LINE)
+  if (req.method === "OPTIONS") {
+    return next();
+  }
+
   try {
     const authHeader = req.headers.authorization;
 
