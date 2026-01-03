@@ -15,6 +15,7 @@ export const registerStore = async (payload: RegisterPayload) => {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include", // Important for CORS with auth
     body: JSON.stringify(payload)
   });
 
@@ -38,6 +39,7 @@ export const loginStore = async (payload: LoginPayload) => {
     headers: {
       "Content-Type": "application/json"
     },
+    credentials: "include", // Important for CORS with auth
     body: JSON.stringify(payload)
   });
 
