@@ -165,9 +165,15 @@ export default function LoginPage() {
         try {
             const res = await loginStore(form);
 
-            // Save token to both localStorage and cookie
+            // Save token and store details to localStorage
             if (typeof window !== "undefined") {
                 localStorage.setItem("token", res.token);
+                localStorage.setItem("storeId", res.store.id);
+                localStorage.setItem("storeName", res.store.name);
+                localStorage.setItem("storeWhatsapp", res.store.whatsappNumber);
+                localStorage.setItem("storeAddress", res.store.address);
+                localStorage.setItem("storeCity", res.store.city);
+                localStorage.setItem("storeDiscount", res.store.discountPercent.toString());
                 // Set cookie for middleware
                 document.cookie = `pharmly_token=${res.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
             }

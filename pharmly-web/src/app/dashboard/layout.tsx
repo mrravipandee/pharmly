@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/Sidebar";
+import TopNavbar from "@/components/layout/TopNavbar";
 
 export default function DashboardLayout({
   children,
@@ -11,8 +12,11 @@ export default function DashboardLayout({
       <Sidebar />
       
       {/* Main Content - 70% on desktop */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6 lg:p-8">
+      <main className="flex-1 overflow-y-auto relative">
+        <div className="absolute top-0 right-0 w-auto">
+          <TopNavbar />
+        </div>
+        <div className="p-4 md:p-6 lg:p-8 pt-10 mt-16">
           {children}
         </div>
       </main>

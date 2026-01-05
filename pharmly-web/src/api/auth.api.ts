@@ -1,4 +1,3 @@
-// Always use relative path - Next.js will proxy to https://api.pharmly.co.in via rewrites
 // This avoids CORS issues in both development and production
 const API_BASE = '';
 

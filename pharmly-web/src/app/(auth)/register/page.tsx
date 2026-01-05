@@ -188,9 +188,15 @@ export default function RegisterPage() {
                 discountPercent: Number(form.discountPercent)
             });
 
-            // Save token
+            // Save token and store details to localStorage
             if (typeof window !== "undefined") {
                 localStorage.setItem("token", res.token);
+                localStorage.setItem("storeId", res.store.id);
+                localStorage.setItem("storeName", res.store.name);
+                localStorage.setItem("storeWhatsapp", res.store.whatsappNumber);
+                localStorage.setItem("storeAddress", res.store.address);
+                localStorage.setItem("storeCity", res.store.city);
+                localStorage.setItem("storeDiscount", res.store.discountPercent.toString());
             }
 
             // Redirect to dashboard

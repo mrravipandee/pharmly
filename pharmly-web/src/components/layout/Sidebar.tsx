@@ -18,11 +18,11 @@ import Appicon from "@/../public/globe.svg";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: FileText, label: "Bills", href: "/bills" },
-  { icon: FileText, label: "Create Bill", href: "/create-bill" },
-  { icon: TrendingUp, label: "Analytics", href: "/analytics" },
-  { icon: Users, label: "Customers", href: "/customers" },
-  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: FileText, label: "Bills", href: "/dashboard/bills" },
+  { icon: FileText, label: "Create Bill", href: "/dashboard/create-bill" },
+  { icon: TrendingUp, label: "Analytics", href: "/dashboard/analytics" },
+  { icon: Users, label: "Customers", href: "/dashboard/customers" },
+  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
 export default function Sidebar() {
@@ -63,7 +63,7 @@ export default function Sidebar() {
       <aside
         className={`
           fixed lg:sticky top-0 h-screen
-          w-[280px] bg-white border-r border-gray-200
+          w-[280px] lg:w-[12rem] bg-white border-r border-gray-200
           flex flex-col
           transition-transform duration-300 z-40
           ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
