@@ -3,8 +3,8 @@ import { Types } from "mongoose";
 
 interface CreateCustomerInput {
   name: string;
-  age: number;
-  sex: "male" | "female";
+  age?: number;
+  sex?: "male" | "female" | "other";
   whatsappNumber: string;
   storeId: Types.ObjectId;
 }

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import { Store } from "../store/store.model";
+import { Bill } from "./bill.model";
 import { findOrCreateCustomer } from "../customer/customer.service";
 import { createBill } from "./bill.service";
 import { generateWhatsAppMessage } from "../../utils/whatsapp";
@@ -12,8 +13,9 @@ import { getBillById, getPreviousBills } from "./bill.service";
 interface CreateBillRequestBody {
   customer: {
     name: string;
-    age: number;
-    sex: "male" | "female";
+    age?: number | string;
+    sex?: "male" | "female";
+    gender?: string; // Frontend sends 'gender' instead of 'sex'
     whatsappNumber: string;
   };
   items: {
@@ -21,6 +23,10 @@ interface CreateBillRequestBody {
     price: number;
     quantity: number;
   }[];
+  discountPercent?: number;
+  subtotal?: number;
+  discountAmount?: number;
+  totalAmount?: number;
 }
 
 export const createBillHandler = async (
@@ -61,24 +67,39 @@ export const createBillHandler = async (
       });
     }
 
-    /** 3️⃣ Find or create customer */
+    /** 3️⃣ Map gender to sex and handle optional fields */
+    const customerAge = body.customer.age 
+      ? (typeof body.customer.age === 'string' ? parseInt(body.customer.age) : body.customer.age)
+      : 0;
+    
+    const customerSex = body.customer.sex || 
+                        (body.customer.gender === "male" || body.customer.gender === "female" 
+                          ? body.customer.gender 
+                          : "male");
+
+    /** 4️⃣ Find or create customer */
     const customer = await findOrCreateCustomer({
-      name: body.customer.name,
-      age: body.customer.age,
-      sex: body.customer.sex,
+      name: body.customer.name || "Customer",
+      age: customerAge,
+      sex: customerSex,
       whatsappNumber: body.customer.whatsappNumber,
       storeId
     });
 
-    /** 4️⃣ Create bill */
+    /** 5️⃣ Use discount from request or store default */
+    const discountPercent = body.discountPercent !== undefined 
+      ? body.discountPercent 
+      : store.discountPercent;
+
+    /** 6️⃣ Create bill */
     const bill = await createBill({
       storeId,
       customerId: customer._id,
       items: body.items,
-      discountPercent: store.discountPercent
+      discountPercent
     });
 
-    /** 5️⃣ Generate WhatsApp message */
+    /** 7️⃣ Generate WhatsApp message */
     const whatsappMessage = generateWhatsAppMessage({
       customerName: customer.name,
       billId: bill._id.toString(),
@@ -87,10 +108,15 @@ export const createBillHandler = async (
       storePhone: store.whatsappNumber
     });
 
-    /** 6️⃣ Final response */
+    /** 8️⃣ Final response */
     return res.status(201).json({
       success: true,
-      billId: bill._id,
+      billId: bill._id.toString(),
+      customer: {
+        name: customer.name,
+        whatsappNumber: customer.whatsappNumber
+      },
+      totalAmount: bill.finalAmount,
       whatsappMessage
     });
   } catch (error: unknown) {
@@ -104,6 +130,39 @@ export const createBillHandler = async (
     return res.status(500).json({
       success: false,
       message: "Internal server error"
+    });
+  }
+};
+
+export const getAllBillsHandler = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const storeId = new Types.ObjectId(req.userId);
+    
+    // Get all bills for this store, populate customer details, sort by most recent first
+    const bills = await Bill.find({ storeId })
+      .populate("customerId", "name whatsappNumber")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.json({
+      success: true,
+      bills
+    });
+  } catch (error) {
+    console.error("Error fetching bills:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Failed to fetch bills"
     });
   }
 };

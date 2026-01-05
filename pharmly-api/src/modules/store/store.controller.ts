@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createStore, validatePassword } from "./store.service";
 import { Store } from "./store.model";
 import { signToken } from "../../utils/jwt";
+import { Types } from "mongoose";
 
 export const registerStore = async (
   req: Request,
@@ -18,7 +19,10 @@ export const registerStore = async (
       store: {
         id: store._id,
         name: store.name,
-        whatsappNumber: store.whatsappNumber
+        whatsappNumber: store.whatsappNumber,
+        address: store.address,
+        city: store.city,
+        discountPercent: store.discountPercent
       }
     });
   } catch (error: unknown) {
@@ -58,10 +62,104 @@ export const loginStore = async (
       store: {
         id: store._id,
         name: store.name,
-        whatsappNumber: store.whatsappNumber
+        whatsappNumber: store.whatsappNumber,
+        address: store.address,
+        city: store.city,
+        discountPercent: store.discountPercent
       }
     });
   } catch (error: unknown) {
     return res.status(500).json({ success: false });
   }
 };
+
+export const getStoreDetails = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const storeId = new Types.ObjectId(req.userId);
+    const store = await Store.findById(storeId).select("-password");
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      store: {
+        id: store._id,
+        name: store.name,
+        whatsappNumber: store.whatsappNumber,
+        address: store.address,
+        city: store.city,
+        discountPercent: store.discountPercent
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching store details:", error);
+    return res.status(500).json({ success: false, message: "Failed to fetch store details" });
+  }
+};
+
+export const updateStoreDetails = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const storeId = new Types.ObjectId(req.userId);
+    const { name, whatsappNumber, address, city, discountPercent } = req.body;
+
+    const updatedStore = await Store.findByIdAndUpdate(
+      storeId,
+      {
+        name,
+        whatsappNumber,
+        address,
+        city,
+        discountPercent
+      },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedStore) {
+      return res.status(404).json({
+        success: false,
+        message: "Store not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      store: {
+        id: updatedStore._id,
+        name: updatedStore.name,
+        whatsappNumber: updatedStore.whatsappNumber,
+        address: updatedStore.address,
+        city: updatedStore.city,
+        discountPercent: updatedStore.discountPercent
+      }
+    });
+  } catch (error) {
+    console.error("Error updating store details:", error);
+    return res.status(500).json({ success: false, message: "Failed to update store details" });
+  }
+};
+

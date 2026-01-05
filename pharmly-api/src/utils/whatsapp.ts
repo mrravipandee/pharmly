@@ -10,6 +10,11 @@ export const generateWhatsAppMessage = (
   input: WhatsAppMessageInput
 ): string => {
   const billLink = `https://pharmly.co.in/bill/${input.billId}`;
+  
+  // Format phone number with +91 prefix
+  const formattedPhone = input.storePhone.startsWith('+91') 
+    ? input.storePhone 
+    : `+91 ${input.storePhone}`;
 
   return (
     `🙏 Thank you, ${input.customerName}\n\n` +
@@ -17,6 +22,6 @@ export const generateWhatsAppMessage = (
     `📄 View your bill & history:\n${billLink}\n\n` +
     `🏥 ${input.storeName}\n` +
     `📍 ${input.storeAddress}\n` +
-    `📞 ${input.storePhone}`
+    `📞 ${formattedPhone}`
   );
 };
