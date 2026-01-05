@@ -165,9 +165,11 @@ export default function LoginPage() {
         try {
             const res = await loginStore(form);
 
-            // Save token
+            // Save token to both localStorage and cookie
             if (typeof window !== "undefined") {
                 localStorage.setItem("token", res.token);
+                // Set cookie for middleware
+                document.cookie = `pharmly_token=${res.token}; path=/; max-age=${7 * 24 * 60 * 60}`; // 7 days
             }
 
             // Redirect to dashboard
