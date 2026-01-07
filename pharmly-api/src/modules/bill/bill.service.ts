@@ -11,7 +11,7 @@ export const getBillById = async (
   }
 
   return Bill.findById(billId)
-    .populate("storeId", "name address whatsappNumber")
+    .populate("storeId", "name address whatsappNumber secondaryMobileNumber gstNumber")
     .populate("customerId", "name whatsappNumber")
     .exec();
 };

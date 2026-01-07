@@ -20,6 +20,8 @@ export const registerStore = async (
         id: store._id,
         name: store.name,
         whatsappNumber: store.whatsappNumber,
+        secondaryMobileNumber: store.secondaryMobileNumber,
+        gstNumber: store.gstNumber,
         address: store.address,
         city: store.city,
         discountPercent: store.discountPercent
@@ -63,6 +65,8 @@ export const loginStore = async (
         id: store._id,
         name: store.name,
         whatsappNumber: store.whatsappNumber,
+        secondaryMobileNumber: store.secondaryMobileNumber,
+        gstNumber: store.gstNumber,
         address: store.address,
         city: store.city,
         discountPercent: store.discountPercent
@@ -101,6 +105,8 @@ export const getStoreDetails = async (
         id: store._id,
         name: store.name,
         whatsappNumber: store.whatsappNumber,
+        secondaryMobileNumber: store.secondaryMobileNumber,
+        gstNumber: store.gstNumber,
         address: store.address,
         city: store.city,
         discountPercent: store.discountPercent
@@ -125,13 +131,15 @@ export const updateStoreDetails = async (
     }
 
     const storeId = new Types.ObjectId(req.userId);
-    const { name, whatsappNumber, address, city, discountPercent } = req.body;
+    const { name, whatsappNumber, secondaryMobileNumber, gstNumber, address, city, discountPercent } = req.body;
 
     const updatedStore = await Store.findByIdAndUpdate(
       storeId,
       {
         name,
         whatsappNumber,
+        secondaryMobileNumber,
+        gstNumber,
         address,
         city,
         discountPercent
@@ -152,6 +160,8 @@ export const updateStoreDetails = async (
         id: updatedStore._id,
         name: updatedStore.name,
         whatsappNumber: updatedStore.whatsappNumber,
+        secondaryMobileNumber: updatedStore.secondaryMobileNumber,
+        gstNumber: updatedStore.gstNumber,
         address: updatedStore.address,
         city: updatedStore.city,
         discountPercent: updatedStore.discountPercent

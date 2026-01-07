@@ -4,6 +4,8 @@ interface WhatsAppMessageInput {
   storeName: string;
   storeAddress: string;
   storePhone: string;
+  storeSecondaryPhone?: string;
+  storeGst?: string;
 }
 
 export const generateWhatsAppMessage = (
@@ -16,7 +18,14 @@ export const generateWhatsAppMessage = (
     ? input.storePhone 
     : `+91 ${input.storePhone}`;
 
-  return (
+  // Format secondary phone if available
+  const formattedSecondaryPhone = input.storeSecondaryPhone
+    ? (input.storeSecondaryPhone.startsWith('+91')
+        ? input.storeSecondaryPhone
+        : `+91 ${input.storeSecondaryPhone}`)
+    : null;
+
+  let message = (
     `🙏 Thank you, ${input.customerName}\n\n` +
     `Aapke recent medicine purchase ka bill niche diya gaya hai.\n\n` +
     `📄 View your bill & history:\n${billLink}\n\n` +
@@ -24,4 +33,16 @@ export const generateWhatsAppMessage = (
     `📍 ${input.storeAddress}\n` +
     `📞 ${formattedPhone}`
   );
+
+  // Add secondary phone if available
+  if (formattedSecondaryPhone) {
+    message += `\n📞 ${formattedSecondaryPhone}`;
+  }
+
+  // Add GST if available
+  if (input.storeGst) {
+    message += `\n🏢 GST: ${input.storeGst}`;
+  }
+
+  return message;
 };

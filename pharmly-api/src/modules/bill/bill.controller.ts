@@ -105,7 +105,9 @@ export const createBillHandler = async (
       billId: bill._id.toString(),
       storeName: store.name,
       storeAddress: store.address,
-      storePhone: store.whatsappNumber
+      storePhone: store.whatsappNumber,
+      storeSecondaryPhone: store.secondaryMobileNumber,
+      storeGst: store.gstNumber
     });
 
     /** 8️⃣ Final response */
