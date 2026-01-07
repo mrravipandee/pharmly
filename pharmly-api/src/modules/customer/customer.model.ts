@@ -1,30 +1,29 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
 export interface CustomerDocument extends Document {
-  name: string;
+  name?: string;
   age?: number;
   sex?: "male" | "female" | "other";
   whatsappNumber: string;
-  storeId: Types.ObjectId;
 }
 
 const customerSchema = new Schema<CustomerDocument>(
   {
-    name: { type: String, required: true },
+    name: { type: String, required: false },
     age: { type: Number, required: false },
-    sex: { type: String, enum: ["male", "female", "other"], required: false },
-    whatsappNumber: { type: String, required: true },
-    storeId: { type: Schema.Types.ObjectId, ref: "Store", required: true }
+    sex: {
+      type: String,
+      enum: ["male", "female", "other"],
+      required: false
+    },
+    whatsappNumber: {
+      type: String,
+      required: true,
+      unique: true,   // 🔑 VERY IMPORTANT
+      index: true
+    }
   },
   { timestamps: true }
-);
-
-/* 🔥 INDEXES */
-
-/** One customer per store per number */
-customerSchema.index(
-  { whatsappNumber: 1, storeId: 1 },
-  { unique: true }
 );
 
 export const Customer = model<CustomerDocument>(
