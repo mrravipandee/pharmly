@@ -165,8 +165,7 @@ export const createCustomer = async (
       name: name || "Customer",
       age: age ? parseInt(age.toString()) : undefined,
       sex,
-      whatsappNumber,
-      storeId
+      whatsappNumber
     });
 
     return res.status(201).json({

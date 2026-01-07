@@ -101,7 +101,7 @@ export const createBillHandler = async (
 
     /** 7️⃣ Generate WhatsApp message */
     const whatsappMessage = generateWhatsAppMessage({
-      customerName: customer.name,
+      customerName: customer.name || "Customer",
       billId: bill._id.toString(),
       storeName: store.name,
       storeAddress: store.address,
