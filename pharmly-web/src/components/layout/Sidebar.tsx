@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
-import Appicon from "@/../public/globe.svg";
+import { PharmlyI, PharmlyLogo } from "../../../public";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -72,16 +72,14 @@ export default function Sidebar() {
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg shadow-md">
+            <div className="">
               <Image
-                src={Appicon}
-                alt="Pharmly"
-                width={24}
-                height={24}
-                className="invert brightness-0"
+                src={PharmlyLogo}
+                alt="Pharmly Logo"
+                width={80}
+                height={30}
               />
             </div>
-            <span className="text-xl font-bold text-gray-900">Pharmly</span>
           </Link>
         </div>
 

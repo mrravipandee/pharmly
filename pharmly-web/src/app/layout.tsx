@@ -37,8 +37,16 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Pharmly – Smart Billing for Medical Stores",
     description:
-      "Create digital bills, send on WhatsApp, and manage your medical store effortlessly with Pharmly.",
+      "Pharmly is a smart billing platform built for medical stores. Create digital medicine bills, apply discounts, and send bills instantly on WhatsApp. Track daily sales, manage repeat customers, and replace paper bills with a simple, reliable digital billing system.",
     url: "https://pharmly.co.in",
+    images: [
+      {
+        url: "https://pharmly.co.in/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Pharmly – Smart Billing for Medical Stores",
+      },
+    ],
     siteName: "Pharmly",
     locale: "en_IN",
     type: "website",

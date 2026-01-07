@@ -1,6 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
+import { PharmlyLogo } from "../../../public";
+import { PharmlyI } from "../../../public";
 
 export default function Navbar() {
   return (
@@ -9,12 +12,12 @@ export default function Navbar() {
         
         {/* LEFT — LOGO */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="h-9 w-9 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold">
-            P
+          <div className="hidden md:block">
+            <Image src={PharmlyLogo} alt="Pharmly Logo" width={100} height={60} />
           </div>
-          <span className="text-lg font-semibold text-gray-900">
-            Pharmly
-          </span>
+          <div className="md:hidden block">
+            <Image src={PharmlyI} alt="Pharmly Logo" width={60} height={60} />
+          </div>
         </Link>
 
         {/* CENTER — LINKS (hidden on mobile) */}
