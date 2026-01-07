@@ -26,9 +26,9 @@ export const generateWhatsAppMessage = (
     : null;
 
   let message = (
-    `🙏 Thank you, ${input.customerName}\n\n` +
+    `🙏🏻 Thank you, ${input.customerName}\n\n` +
     `Aapke recent medicine purchase ka bill niche diya gaya hai.\n\n` +
-    `📄 View your bill & history:\n${billLink}\n\n` +
+    `🧾 View your bill & history:\n${billLink}\n\n` +
     `🏥 ${input.storeName}\n` +
     `📍 ${input.storeAddress}\n` +
     `📞 ${formattedPhone}`
@@ -41,7 +41,7 @@ export const generateWhatsAppMessage = (
 
   // Add GST if available
   if (input.storeGst) {
-    message += `\n🏢 GST: ${input.storeGst}`;
+    message += `\n🏦 GST: ${input.storeGst}`;
   }
 
   return message;

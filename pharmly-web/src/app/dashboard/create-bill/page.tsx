@@ -360,15 +360,16 @@ export default function CreateBillPage() {
     items.forEach(item => {
       let itemPrice = 0;
 
-      if (item.usePerPiece && item.stripPrice && item.stripQuantity) {
+      // Automatically use per-piece calculation if strip details are provided
+      if (item.stripPrice && item.stripQuantity) {
         // Calculate per-piece price: stripPrice / stripQuantity * quantity
         const stripPrice = parseFloat(item.stripPrice) || 0;
         const stripQuantity = parseFloat(item.stripQuantity) || 1;
         const quantity = parseFloat(item.quantity) || 0;
         const pricePerPiece = stripPrice / stripQuantity;
         itemPrice = pricePerPiece * quantity;
-      } else {
-        // Normal calculation
+      } else if (item.price) {
+        // Fallback to normal calculation if only regular price is provided
         const price = parseFloat(item.price) || 0;
         const quantity = parseFloat(item.quantity) || 0;
         itemPrice = price * quantity;
@@ -392,9 +393,11 @@ export default function CreateBillPage() {
   // Validation
   const isValid = whatsappNumber.length >= 10 &&
     items.some(item => {
-      if (item.usePerPiece) {
-        return item.name && item.stripPrice && item.stripQuantity && parseFloat(item.stripPrice) > 0 && parseFloat(item.stripQuantity) > 0;
+      // Check if item has strip details for per-piece calculation
+      if (item.stripPrice && item.stripQuantity) {
+        return item.name && parseFloat(item.stripPrice) > 0 && parseFloat(item.stripQuantity) > 0;
       }
+      // Fallback to regular price validation
       return item.name && item.price && parseFloat(item.price) > 0;
     }) &&
     subtotal > 0;
@@ -519,17 +522,18 @@ export default function CreateBillPage() {
       // Prepare items for API
       const formattedItems = items
         .filter(item => {
-          if (item.usePerPiece) {
-            return item.name && item.stripPrice && item.stripQuantity &&
-              parseFloat(item.stripPrice) > 0 && parseFloat(item.stripQuantity) > 0;
+          // Check if item has strip details for per-piece calculation
+          if (item.stripPrice && item.stripQuantity) {
+            return item.name && parseFloat(item.stripPrice) > 0 && parseFloat(item.stripQuantity) > 0;
           }
+          // Fallback to regular price validation
           return item.name && item.price && parseFloat(item.price) > 0;
         })
         .map(item => {
           let finalPrice = 0;
           const quantity = parseFloat(item.quantity) || 1;
 
-          if (item.usePerPiece && item.stripPrice && item.stripQuantity) {
+          if (item.stripPrice && item.stripQuantity) {
             // Calculate per-piece price
             const stripPrice = parseFloat(item.stripPrice);
             const stripQuantity = parseFloat(item.stripQuantity);
