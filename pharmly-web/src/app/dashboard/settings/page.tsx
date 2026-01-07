@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Store, Phone, MapPin, Percent, Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Store, Phone, MapPin, Percent, Save, ArrowLeft, Loader2, CreditCard } from "lucide-react";
 import Link from "next/link";
 
 export default function SettingsPage() {
   const [storeName, setStoreName] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [secondaryMobileNumber, setSecondaryMobileNumber] = useState("");
+  const [gstNumber, setGstNumber] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [discount, setDiscount] = useState("");
@@ -39,6 +41,8 @@ export default function SettingsPage() {
       if (data.success && data.store) {
         setStoreName(data.store.name || "");
         setWhatsappNumber(data.store.whatsappNumber || "");
+        setSecondaryMobileNumber(data.store.secondaryMobileNumber || "");
+        setGstNumber(data.store.gstNumber || "");
         setAddress(data.store.address || "");
         setCity(data.store.city || "");
         setDiscount(data.store.discountPercent?.toString() || "");
@@ -46,6 +50,8 @@ export default function SettingsPage() {
         // Update localStorage too
         localStorage.setItem("storeName", data.store.name || "");
         localStorage.setItem("storeWhatsapp", data.store.whatsappNumber || "");
+        localStorage.setItem("storeSecondaryMobile", data.store.secondaryMobileNumber || "");
+        localStorage.setItem("storeGst", data.store.gstNumber || "");
         localStorage.setItem("storeAddress", data.store.address || "");
         localStorage.setItem("storeCity", data.store.city || "");
         localStorage.setItem("storeDiscount", data.store.discountPercent?.toString() || "");
@@ -80,6 +86,8 @@ export default function SettingsPage() {
         body: JSON.stringify({
           name: storeName,
           whatsappNumber,
+          secondaryMobileNumber,
+          gstNumber,
           address,
           city,
           discountPercent: parseFloat(discount) || 0
@@ -92,6 +100,8 @@ export default function SettingsPage() {
         // Update localStorage
         localStorage.setItem("storeName", data.store.name || "");
         localStorage.setItem("storeWhatsapp", data.store.whatsappNumber || "");
+        localStorage.setItem("storeSecondaryMobile", data.store.secondaryMobileNumber || "");
+        localStorage.setItem("storeGst", data.store.gstNumber || "");
         localStorage.setItem("storeAddress", data.store.address || "");
         localStorage.setItem("storeCity", data.store.city || "");
         localStorage.setItem("storeDiscount", data.store.discountPercent?.toString() || "");
@@ -168,6 +178,37 @@ export default function SettingsPage() {
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 placeholder="9876543210"
+              />
+            </div>
+
+            {/* Secondary Mobile Number */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <Phone className="w-4 h-4" />
+                Secondary Mobile Number <span className="text-xs text-gray-500 font-normal">(Optional)</span>
+              </label>
+              <input
+                type="tel"
+                value={secondaryMobileNumber}
+                onChange={(e) => setSecondaryMobileNumber(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="9876543210"
+              />
+            </div>
+
+            {/* GST Number */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                <CreditCard className="w-4 h-4" />
+                GST Number <span className="text-xs text-gray-500 font-normal">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={gstNumber}
+                onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
+                className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                placeholder="22AAAAA0000A1Z5"
+                maxLength={15}
               />
             </div>
 
