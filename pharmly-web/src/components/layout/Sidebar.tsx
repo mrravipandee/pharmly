@@ -42,7 +42,7 @@ export default function Sidebar() {
       {/* Mobile Menu Button */}
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
       >
         {isMobileMenuOpen ? (
           <X className="w-6 h-6 text-gray-700" />
@@ -63,10 +63,11 @@ export default function Sidebar() {
       <aside
         className={`
           fixed lg:sticky top-0 h-screen
-          w-[280px] lg:w-[12rem] bg-white border-r border-gray-200
+          w-[280px] lg:w-[12rem] bg-white 
+          lg:border-r border-gray-200
           flex flex-col
           transition-transform duration-300 z-40
-          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          ${isMobileMenuOpen ? "right-0 translate-x-0" : "right-0 translate-x-full lg:translate-x-0 lg:left-0 lg:right-auto"}
         `}
       >
         {/* Logo */}

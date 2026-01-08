@@ -14,11 +14,13 @@ export default function TopNavbar() {
   }, []);
 
   return (
-    <div className="sticky top-0 z-20 px-4 md:px-0">
+    <div className="sticky top-0 z-20 md:px-0">
       <div
         className="
-          mx-auto
           mt-4
+          ml-4
+          mr-auto
+          md:mx-auto
           flex
           items-center
           justify-between
@@ -28,6 +30,8 @@ export default function TopNavbar() {
           bg-white
           px-4
           py-3
+          max-w-fit
+          md:max-w-none
           md:mr-10
         "
       >
