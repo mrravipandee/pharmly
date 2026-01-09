@@ -18,7 +18,7 @@ interface RecentBillsListProps {
 export default function RecentBillsList({ bills }: RecentBillsListProps) {
   const maskPhone = (phone: string) => {
     if (phone.length <= 5) return phone;
-    return phone.substring(0, 5) + "*****";
+    return phone;
   };
 
   const formatTime = (dateString: string) => {
@@ -47,14 +47,14 @@ export default function RecentBillsList({ bills }: RecentBillsListProps) {
 
       {/* Bills List */}
       <div className="space-y-3">
-        {bills.map((bill) => (
+        {bills.filter(bill => bill.customerId).map((bill) => (
           <div
             key={bill._id}
             className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4"
           >
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {maskPhone(bill.customerId.whatsappNumber)}
+                {bill.customerId?.whatsappNumber ? maskPhone(bill.customerId.whatsappNumber) : 'Unknown'}
               </p>
               <p className="text-xs text-gray-500">
                 {formatTime(bill.createdAt)}

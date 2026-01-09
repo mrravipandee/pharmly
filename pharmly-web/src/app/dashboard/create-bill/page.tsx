@@ -148,28 +148,23 @@ async function searchPatient(whatsappNumber: string): Promise<SearchPatientRespo
     const token = getAuthToken();
 
     if (!token) {
-      console.error("No authentication token found. Please log in again.");
       return { exists: false, error: "Not authenticated" };
     }
 
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    };
-
     const res = await fetch(`/api/patients/search?whatsappNumber=${whatsappNumber}`, {
-      headers
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
     });
 
     if (!res.ok) {
       const error = await res.json();
-      console.error("Search patient failed:", error);
       return { exists: false, error: error.message || "Search failed" };
     }
 
     return await res.json();
   } catch (error) {
-    console.error("Error searching patient:", error);
     return { exists: false, error: "Search failed" };
   }
 }
@@ -302,15 +297,8 @@ export default function CreateBillPage() {
   const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
-  // Check authentication on mount (but don't redirect automatically)
+  // Check authentication on mount
   useEffect(() => {
-    const token = getAuthToken();
-    if (!token) {
-      console.warn("No authentication token found. User may need to login.");
-    } else {
-      console.log("Authentication token found");
-    }
-
     // Initialize speech recognition
     if (typeof window !== 'undefined') {
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -331,8 +319,8 @@ export default function CreateBillPage() {
         setSearchingPatient(true);
         try {
           const data = await searchPatient(whatsappNumber);
-          if (data.exists) {
-            setExistingPatient(data.patient || null);
+          if (data.exists && data.patient) {
+            setExistingPatient(data.patient);
             setShowPatientForm(false);
           } else {
             setExistingPatient(null);

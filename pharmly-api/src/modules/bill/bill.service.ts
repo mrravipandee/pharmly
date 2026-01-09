@@ -26,7 +26,7 @@ export const getPreviousBills = async (
   })
     .sort({ createdAt: -1 })
     .limit(10)
-    .select("finalAmount createdAt")
+    .select("items subtotal discountPercent finalAmount createdAt")
     .exec();
 };
 

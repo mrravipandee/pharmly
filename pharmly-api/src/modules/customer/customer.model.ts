@@ -1,10 +1,11 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface CustomerDocument extends Document {
   name?: string;
   age?: number;
   sex?: "male" | "female" | "other";
   whatsappNumber: string;
+  storeId?: Types.ObjectId;
 }
 
 const customerSchema = new Schema<CustomerDocument>(
@@ -19,7 +20,13 @@ const customerSchema = new Schema<CustomerDocument>(
     whatsappNumber: {
       type: String,
       required: true,
-      unique: true,   // 🔑 VERY IMPORTANT
+      unique: true,
+      index: true
+    },
+    storeId: {
+      type: Schema.Types.ObjectId,
+      ref: "Store",
+      required: false,
       index: true
     }
   },

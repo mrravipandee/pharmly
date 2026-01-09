@@ -85,7 +85,9 @@ export default function DashboardPage() {
           billsToday: todayBills.length,
           customersToday: uniqueCustomerIds.size,
           avgBillValue,
-          recentBills: bills.slice(0, 4) // Get 4 most recent bills (any date)
+          recentBills: bills
+            .filter((bill: Bill) => bill.customerId && bill.customerId.whatsappNumber)
+            .slice(0, 4) // Get 4 most recent bills with valid customer data
         });
       } else {
         // No bills yet, set empty data

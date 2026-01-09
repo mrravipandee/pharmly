@@ -79,11 +79,9 @@ export const searchCustomer = async (
       });
     }
 
-    const storeId = new Types.ObjectId(req.userId);
-    
+    // Search globally - any store can find any customer
     const customer = await Customer.findOne({
-      whatsappNumber,
-      storeId
+      whatsappNumber
     });
 
     if (!customer) {
@@ -137,10 +135,9 @@ export const createCustomer = async (
 
     const storeId = new Types.ObjectId(req.userId);
 
-    // Check if customer already exists
+    // Check if customer already exists (globally - any store can see any customer)
     const existingCustomer = await Customer.findOne({
-      whatsappNumber,
-      storeId
+      whatsappNumber
     });
 
     if (existingCustomer) {
@@ -161,11 +158,13 @@ export const createCustomer = async (
         ? gender 
         : "male";
 
+    // Create new customer with storeId (tracks which store created them)
     const customer = await Customer.create({
       name: name || "Customer",
       age: age ? parseInt(age.toString()) : undefined,
       sex,
-      whatsappNumber
+      whatsappNumber,
+      storeId
     });
 
     return res.status(201).json({

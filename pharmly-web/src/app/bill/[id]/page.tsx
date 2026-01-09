@@ -50,7 +50,7 @@ interface BillData {
     finalAmount: number;
     date: string;
   };
-  previousBills: Array<{
+  previousBills?: Array<{
     _id: string;
     finalAmount: number;
     createdAt: string;
@@ -315,7 +315,7 @@ export default function BillDetailsPage() {
           </div>
 
           {/* Previous Bills */}
-          {billData.previousBills.length > 0 && (
+          {billData.previousBills && billData.previousBills.length > 0 && (
             <div className="p-4 md:p-6 lg:p-8 bg-gray-50 border-t border-gray-200 print:hidden">
               <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
                 Previous Bills ({billData.previousBills.length})
