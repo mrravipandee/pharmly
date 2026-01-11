@@ -915,21 +915,31 @@ export default function CreateBillPage() {
                       step="1"
                     />
 
-                    {/* Live calculation preview */}
+                    {/* Live calculation preview with strip count */}
                     {item.stripPrice && item.stripQuantity && item.quantity && (
                       <div className="rounded-lg border border-teal-100 bg-teal-50 p-2 sm:p-3">
-                        <p className="mb-1 text-xs text-teal-700">
-                          Price Calculation
-                        </p>
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-teal-700">Price Calculation</p>
+                          {Number(item.quantity) > Number(item.stripQuantity) && (
+                            <span className="text-xs font-semibold px-2 py-0.5 bg-teal-600 text-white rounded">
+                              {Math.ceil(Number(item.quantity) / Number(item.stripQuantity))} strips
+                            </span>
+                          )}
+                        </div>
                         <p className="text-xs sm:text-sm font-semibold text-teal-900">
                           ₹{item.stripPrice} ÷ {item.stripQuantity} ×{" "}
-                          {item.quantity} = ₹
+                          {item.quantity} tablets = ₹
                           {(
                             (Number(item.stripPrice) /
                               Number(item.stripQuantity)) *
                             Number(item.quantity)
                           ).toFixed(2)}
                         </p>
+                        {Number(item.quantity) > Number(item.stripQuantity) && (
+                          <p className="text-xs text-teal-600 mt-1">
+                            📦 Customer needs {Math.ceil(Number(item.quantity) / Number(item.stripQuantity))} strip(s) for {item.quantity} tablets
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>

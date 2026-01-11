@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Phone, User, Users, Calendar, VenusAndMars, Loader2, AlertCircle } from "lucide-react";
+import { Phone, User, Users, Calendar, VenusAndMars, Loader2, AlertCircle, Edit2, X, Save } from "lucide-react";
 
 interface Customer {
   id: string;
@@ -11,10 +11,26 @@ interface Customer {
   whatsappNumber: string;
 }
 
+interface EditFormData {
+  name: string;
+  age: string;
+  gender: string;
+  whatsappNumber: string;
+}
+
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editForm, setEditForm] = useState<EditFormData>({
+    name: "",
+    age: "",
+    gender: "",
+    whatsappNumber: ""
+  });
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -53,6 +69,84 @@ export default function CustomersPage() {
 
   const handleCall = (phoneNumber: string) => {
     window.location.href = `tel:${phoneNumber}`;
+  };
+
+  const handleEditClick = (customer: Customer) => {
+    setEditingCustomer(customer);
+    setEditForm({
+      name: customer.name || "",
+      age: customer.age?.toString() || "",
+      gender: customer.gender || "",
+      whatsappNumber: customer.whatsappNumber
+    });
+    setEditError(null);
+  };
+
+  const handleCloseEdit = () => {
+    setEditingCustomer(null);
+    setEditForm({
+      name: "",
+      age: "",
+      gender: "",
+      whatsappNumber: ""
+    });
+    setEditError(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCustomer) return;
+
+    // Validation
+    if (!editForm.name.trim()) {
+      setEditError("Name is required");
+      return;
+    }
+    if (!editForm.whatsappNumber.trim()) {
+      setEditError("WhatsApp number is required");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setEditError(null);
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setEditError("Please login again");
+        return;
+      }
+
+      const res = await fetch(`/api/patients/${editingCustomer.id}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: editForm.name,
+          age: editForm.age ? parseInt(editForm.age) : undefined,
+          gender: editForm.gender || undefined,
+          whatsappNumber: editForm.whatsappNumber
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Update the customer in the list
+        setCustomers(customers.map(c => 
+          c.id === editingCustomer.id ? data.customer : c
+        ));
+        handleCloseEdit();
+      } else {
+        setEditError(data.message || "Failed to update customer");
+      }
+    } catch (err) {
+      setEditError("Failed to update customer");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -134,7 +228,7 @@ export default function CustomersPage() {
                       </div>
                     </th>
                     <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                      Action
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -156,13 +250,22 @@ export default function CustomersPage() {
                         <div className="text-gray-900 font-mono">{customer.whatsappNumber}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <button
-                          onClick={() => handleCall(customer.whatsappNumber)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
-                        >
-                          <Phone className="w-4 h-4" />
-                          Call
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEditClick(customer)}
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleCall(customer.whatsappNumber)}
+                            className="inline-flex items-center gap-2 px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
+                          >
+                            <Phone className="w-4 h-4" />
+                            Call
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -197,15 +300,142 @@ export default function CustomersPage() {
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleCall(customer.whatsappNumber)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
-                  >
-                    <Phone className="w-4 h-4" />
-                    Call Customer
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(customer)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleCall(customer.whatsappNumber)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Phone className="w-4 h-4" />
+                      Call
+                    </button>
+                  </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Edit Modal */}
+        {editingCustomer && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Edit Customer</h2>
+                  <button
+                    onClick={handleCloseEdit}
+                    disabled={saving}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    <X className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Error Message */}
+                {editError && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                    {editError}
+                  </div>
+                )}
+
+                {/* Form */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Customer name"
+                      disabled={saving}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Age
+                    </label>
+                    <input
+                      type="number"
+                      value={editForm.age}
+                      onChange={(e) => setEditForm({ ...editForm, age: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="Customer age"
+                      disabled={saving}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Gender
+                    </label>
+                    <select
+                      value={editForm.gender}
+                      onChange={(e) => setEditForm({ ...editForm, gender: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      disabled={saving}
+                    >
+                      <option value="">Select gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      WhatsApp Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.whatsappNumber}
+                      onChange={(e) => setEditForm({ ...editForm, whatsappNumber: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      placeholder="WhatsApp number"
+                      disabled={saving}
+                    />
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={handleCloseEdit}
+                    disabled={saving}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    disabled={saving}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save Changes
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

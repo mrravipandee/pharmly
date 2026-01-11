@@ -23,6 +23,7 @@ interface BillItem {
   price: number;
   quantity: number;
   total: number;
+  stripQuantity?: number; // Number of medicines in one strip
 }
 
 interface Customer {
@@ -260,56 +261,89 @@ export default function BillDetailsPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Item</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Price</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Price/Unit</th>
                     <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Qty</th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Total</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {billData.currentBill.items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="py-3 px-4 text-sm text-gray-900">{item.name}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600 text-right">₹{item.price.toFixed(2)}</td>
-                      <td className="py-3 px-4 text-sm text-gray-600 text-center">×{item.quantity}</td>
-                      <td className="py-3 px-4 text-sm font-medium text-gray-900 text-right">₹{item.total.toFixed(2)}</td>
-                    </tr>
-                  ))}
+                  {billData.currentBill.items.map((item, idx) => {
+                    // Calculate number of strips if stripQuantity is available
+                    const stripCount = item.stripQuantity && item.quantity > item.stripQuantity 
+                      ? Math.ceil(item.quantity / item.stripQuantity) 
+                      : null;
+                    
+                    return (
+                      <tr key={idx}>
+                        <td className="py-3 px-4">
+                          <div className="text-sm text-gray-900">{item.name}</div>
+                          {stripCount && (
+                            <div className="text-xs text-teal-600 font-medium mt-1">
+                              📦 {stripCount} strip{stripCount > 1 ? 's' : ''}
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600 text-right">₹{item.price.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm text-gray-600 text-center">×{item.quantity}</td>
+                        <td className="py-3 px-4 text-sm font-medium text-gray-900 text-right">₹{item.total.toFixed(2)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {/* Mobile Cards */}
             <div className="md:hidden space-y-3">
-              {billData.currentBill.items.map((item, idx) => (
-                <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="text-sm font-medium text-gray-900 flex-1">{item.name}</h4>
-                    <span className="text-sm font-bold text-teal-600 ml-2">₹{item.total.toFixed(2)}</span>
+              {billData.currentBill.items.map((item, idx) => {
+                // Calculate number of strips if stripQuantity is available
+                const stripCount = item.stripQuantity && item.quantity > item.stripQuantity 
+                  ? Math.ceil(item.quantity / item.stripQuantity) 
+                  : null;
+                
+                return (
+                  <div key={idx} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <h4 className="text-sm font-medium text-gray-900">{item.name}</h4>
+                        {stripCount && (
+                          <span className="inline-block text-xs font-medium px-2 py-0.5 bg-teal-600 text-white rounded mt-1">
+                            📦 {stripCount} strip{stripCount > 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm font-bold text-teal-600 ml-2">₹{item.total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-gray-600">
+                      <span>₹{item.price.toFixed(2)} × {item.quantity}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-gray-600">
-                    <span>₹{item.price.toFixed(2)} × {item.quantity}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Summary */}
+            {/* Summary - Original prices first, then discount */}
             <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-gray-200">
               <div className="space-y-2 md:space-y-3 max-w-sm ml-auto">
                 <div className="flex justify-between text-sm md:text-base text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₹{billData.currentBill.subtotal.toFixed(2)}</span>
+                  <span>Subtotal (Original Price)</span>
+                  <span className="font-medium">₹{billData.currentBill.subtotal.toFixed(2)}</span>
                 </div>
                 {billData.currentBill.discountPercent > 0 && (
                   <div className="flex justify-between text-sm md:text-base text-red-600">
                     <span>Discount ({billData.currentBill.discountPercent}%)</span>
-                    <span>-₹{(billData.currentBill.subtotal * billData.currentBill.discountPercent / 100).toFixed(2)}</span>
+                    <span className="font-medium">-₹{(billData.currentBill.subtotal * billData.currentBill.discountPercent / 100).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base md:text-lg lg:text-xl font-bold text-gray-900 pt-2 md:pt-3 border-t border-gray-300">
-                  <span>Total Amount</span>
+                  <span>Final Amount</span>
                   <span className="text-teal-600">₹{billData.currentBill.finalAmount.toFixed(2)}</span>
                 </div>
+              </div>
+              <div className="mt-4 p-3 bg-teal-50 rounded-lg border border-teal-100 max-w-sm ml-auto">
+                <p className="text-xs text-teal-700 text-center">
+                  💡 All items are priced at original rates. Discount is applied to the total bill.
+                </p>
               </div>
             </div>
           </div>

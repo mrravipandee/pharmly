@@ -8,7 +8,10 @@ import {
   User, 
   Loader2, 
   AlertCircle,
-  ArrowRight
+  ArrowRight,
+  Edit2,
+  Trash2,
+  X
 } from "lucide-react";
 
 interface Bill {
@@ -32,6 +35,8 @@ export default function BillsPage() {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingBillId, setDeletingBillId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchBills();
@@ -83,6 +88,40 @@ export default function BillsPage() {
       hour: "2-digit", 
       minute: "2-digit" 
     });
+  };
+
+  const handleDeleteBill = async (billId: string) => {
+    try {
+      setDeleting(true);
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        setError("Please login to delete bills");
+        return;
+      }
+
+      const res = await fetch(`/api/bills/${billId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Remove bill from state
+        setBills(bills.filter(b => b._id !== billId));
+        setDeletingBillId(null);
+      } else {
+        setError(data.message || "Failed to delete bill");
+      }
+    } catch (err) {
+      setError("Failed to delete bill");
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (loading) {
@@ -222,26 +261,86 @@ export default function BillsPage() {
                 </div>
 
                 {/* Bill Footer */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500">
+                <div className="pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500 mb-3">
                     <Calendar className="w-3.5 h-3.5 md:w-4 md:h-4" />
                     <span>{formatDate(bill.createdAt)}</span>
                     <span className="hidden sm:inline">•</span>
                     <span className="hidden sm:inline">{formatTime(bill.createdAt)}</span>
                   </div>
-                  <Link
-                    href={`/bill/${bill._id}`}
-                    className="inline-flex items-center gap-1.5 text-xs md:text-sm font-medium text-teal-600 hover:text-teal-700 group-hover:gap-2 transition-all"
-                  >
-                    <span>View</span>
-                    <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/bill/${bill._id}`}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs md:text-sm font-medium transition-colors"
+                    >
+                      <span>View</span>
+                      <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    </Link>
+                    <button
+                      onClick={() => setDeletingBillId(bill._id)}
+                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                      title="Delete bill"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingBillId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-red-100 rounded-full">
+                <Trash2 className="w-6 h-6 text-red-600" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900">Delete Bill?</h2>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this bill? This action cannot be undone.
+            </p>
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setDeletingBillId(null);
+                  setError(null);
+                }}
+                disabled={deleting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDeleteBill(deletingBillId)}
+                disabled={deleting}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50 font-medium"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
