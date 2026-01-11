@@ -8,7 +8,7 @@ import { registerStore } from "@/api/auth.api";
 
 // Asset imports
 import Appicon from "@/../public/globe.svg";
-import { PharmlyAuthBg } from "@/../public/index";
+import { PharmlyAuthBg, PharmlyI, PharmlyLogo } from "@/../public/index";
 
 import {
     Building2,
@@ -219,16 +219,15 @@ export default function RegisterPage() {
             {/* Mobile Header */}
             <div className="lg:hidden bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 px-6 py-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-gradient-to-br from-teal-500 to-teal-700 rounded-lg shadow-md shadow-teal-500/20">
+                    <div className="">
                         <Image
-                            src={Appicon}
-                            alt="Pharmly"
+                            src={PharmlyLogo}
+                            alt="Pharmly Logo"
                             width={20}
                             height={20}
-                            className="invert brightness-0"
+                            className="h-16 w-[5.5rem]"
                         />
                     </div>
-                    <span className="text-xl font-bold text-gray-900 tracking-tight">Pharmly</span>
                 </div>
             </div>
 
@@ -241,16 +240,15 @@ export default function RegisterPage() {
                         {/* Desktop Header */}
                         <div className="hidden lg:block space-y-2">
                             <div className="flex items-center gap-3 mb-8">
-                                <div className="p-2.5 bg-gradient-to-br from-teal-500 to-teal-700 rounded-xl shadow-lg shadow-teal-500/20">
+                                <div className="">
                                     <Image
-                                        src={Appicon}
-                                        alt="Pharmly"
+                                        src={PharmlyLogo}
+                                        alt="Pharmly Logo"
                                         width={24}
                                         height={24}
-                                        className="invert brightness-0"
+                                        className="h-16 w-[5.5rem]"
                                     />
                                 </div>
-                                <span className="text-2xl font-bold text-gray-900 tracking-tight">Pharmly</span>
                             </div>
                             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
                                 Create your account
@@ -426,7 +424,7 @@ export default function RegisterPage() {
                             src={PharmlyAuthBg}
                             alt="Background"
                             fill
-                            className="object-cover opacity-40 mix-blend-overlay"
+                            className="object-cover opacity-100"
                             priority
                         />
                         <div className="absolute inset-0 bg-gradient-to-br from-teal-900/90 via-teal-800/90 to-gray-900/90" />
@@ -448,8 +446,8 @@ export default function RegisterPage() {
                                     <div className="flex justify-center mb-8">
                                         <div className="p-4 bg-white/10 rounded-2xl border border-white/20 shadow-inner">
                                             <Image
-                                                src={Appicon}
-                                                alt="Pharmly"
+                                                src={PharmlyI}
+                                                alt="Pharmly Logo"
                                                 width={48}
                                                 height={48}
                                                 className="invert brightness-0"
@@ -480,20 +478,6 @@ export default function RegisterPage() {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Trust Indicator */}
-                            <div className="mt-10 text-center">
-                                <p className="text-white/60 text-sm font-medium uppercase tracking-widest mb-4">Trusted By</p>
-                                <div className="flex justify-center gap-2 items-center">
-                                    <div className="flex -space-x-3">
-                                        {[1, 2, 3, 4].map((i) => (
-                                            <div key={i} className="w-10 h-10 rounded-full border-2 border-teal-900 bg-gray-200" />
-                                        ))}
-                                    </div>
-                                    <span className="text-white font-semibold ml-2">1,000+ Stores</span>
-                                </div>
-                            </div>
-
                         </div>
                     </div>
                 </div>

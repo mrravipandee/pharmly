@@ -19,9 +19,7 @@ import {
   Loader2,
   ArrowLeft,
   X,
-  UserPlus,
-  Mic,
-  MicOff
+  UserPlus
 } from "lucide-react";
 
 // Web Speech API Types
@@ -294,23 +292,8 @@ export default function CreateBillPage() {
     gender: ""
   });
   const [searchingPatient, setSearchingPatient] = useState(false);
-  const [recordingIndex, setRecordingIndex] = useState<number | null>(null);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
-  // Check authentication on mount
-  useEffect(() => {
-    // Initialize speech recognition
-    if (typeof window !== 'undefined') {
-      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognitionAPI) {
-        const recognitionInstance = new SpeechRecognitionAPI();
-        recognitionInstance.continuous = false;
-        recognitionInstance.interimResults = false;
-        recognitionInstance.lang = 'en-US';
-        setRecognition(recognitionInstance);
-      }
-    }
-  }, []);
+
 
   // Handle patient search
   useEffect(() => {
@@ -431,47 +414,7 @@ export default function CreateBillPage() {
     return `https://wa.me/91${formattedPhone}?text=${encodedMessage}`;
   };
 
-  // Handle voice recording for medicine name
-  const startVoiceRecording = (index: number) => {
-    if (!recognition) {
-      alert('Voice recognition is not supported in your browser. Please try Chrome or Edge.');
-      return;
-    }
 
-    setRecordingIndex(index);
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const transcript = event.results[0][0].transcript;
-      updateItem(index, 'name', transcript);
-      setRecordingIndex(null);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      console.error('Speech recognition error:', event.error);
-      setRecordingIndex(null);
-      if (event.error === 'not-allowed') {
-        alert('Microphone access denied. Please allow microphone access in your browser settings.');
-      }
-    };
-
-    recognition.onend = () => {
-      setRecordingIndex(null);
-    };
-
-    try {
-      recognition.start();
-    } catch (error) {
-      console.error('Error starting recognition:', error);
-      setRecordingIndex(null);
-    }
-  };
-
-  const stopVoiceRecording = () => {
-    if (recognition) {
-      recognition.stop();
-    }
-    setRecordingIndex(null);
-  };
 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -827,50 +770,15 @@ export default function CreateBillPage() {
                   className="rounded-xl border border-gray-200 bg-gray-50 p-3 sm:p-4"
                 >
                   <div className="space-y-3 sm:space-y-4">
-                    {/* Medicine name with voice input */}
-                    <div className="space-y-1.5 group">
-                      <label className="text-xs font-semibold uppercase tracking-wide transition-colors duration-200 ml-1 text-gray-500">
-                        Medicine Name
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="flex-1">
-                          <div className="relative flex items-center bg-white border rounded-xl transition-all duration-200 ease-in-out border-gray-200 hover:border-gray-300">
-                            <div className="pl-4 pr-3 py-3 flex items-center justify-center">
-                              <Package className="w-5 h-5 transition-colors duration-200 text-gray-400 group-hover:text-gray-500" />
-                            </div>
-                            <div className="h-6 w-px bg-gray-200 mx-1" />
-                            <input
-                              type="text"
-                              value={item.name}
-                              onChange={(e) => updateItem(index, "name", e.target.value)}
-                              placeholder={recordingIndex === index ? "Listening..." : "Enter medicine name"}
-                              className="w-full px-3 py-3 bg-transparent border-none focus:outline-none text-gray-800 placeholder:text-gray-400 font-medium"
-                            />
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => recordingIndex === index ? stopVoiceRecording() : startVoiceRecording(index)}
-                          className={`flex items-center justify-center px-4 py-3 rounded-xl border-2 transition-all ${
-                            recordingIndex === index
-                              ? "bg-red-50 border-red-300 text-red-600 animate-pulse"
-                              : "bg-white border-gray-200 text-gray-600 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600"
-                          }`}
-                          title={recordingIndex === index ? "Stop recording" : "Record medicine name"}
-                        >
-                          {recordingIndex === index ? (
-                            <MicOff className="w-5 h-5" />
-                          ) : (
-                            <Mic className="w-5 h-5" />
-                          )}
-                        </button>
-                      </div>
-                      {recordingIndex === index && (
-                        <p className="text-xs text-red-600 ml-1 animate-pulse">
-                          🎤 Listening... Speak the medicine name
-                        </p>
-                      )}
-                    </div>
+                    {/* Medicine name */}
+                    <FormField
+                      label="Medicine Name"
+                      icon={Package}
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => updateItem(index, "name", e.target.value)}
+                      placeholder="Enter medicine name"
+                    />
 
                     {/* Strip details */}
                     <div className="grid grid-cols-2 gap-4">
@@ -935,11 +843,6 @@ export default function CreateBillPage() {
                             Number(item.quantity)
                           ).toFixed(2)}
                         </p>
-                        {Number(item.quantity) > Number(item.stripQuantity) && (
-                          <p className="text-xs text-teal-600 mt-1">
-                            📦 Customer needs {Math.ceil(Number(item.quantity) / Number(item.stripQuantity))} strip(s) for {item.quantity} tablets
-                          </p>
-                        )}
                       </div>
                     )}
                   </div>
@@ -1039,7 +942,7 @@ export default function CreateBillPage() {
               ) : (
                 <>
                   <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                  <span className="hidden sm:inline">Create Bill & Generate WhatsApp Link</span>
+                  <span className="hidden sm:inline">Create Bill</span>
                   <span className="sm:hidden">Create Bill</span>
                 </>
               )}

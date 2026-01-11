@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { Building2, Heart, Shield, MessageSquare, Phone } from "lucide-react";
+import { Heart, Shield, MessageSquare, Phone } from "lucide-react";
+import Image from "next/image";
+import { PharmlyLogo } from "../../../public";
 
 export default function Footer() {
   return (
@@ -10,31 +12,27 @@ export default function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           
           {/* Brand with Icon */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-teal-600" />
-            </div>
-            <div className="text-left">
-              <p className="font-bold text-gray-900 text-lg">Pharmly</p>
-              <p className="text-sm text-gray-500">Smart billing for medical stores</p>
+          <div className="">
+            <div className="">
+              <Image src={PharmlyLogo} alt="Pharmly Logo" className="w-16 h-[5.5rem]" width={40} height={40} />
             </div>
           </div>
 
           {/* Contact Info */}
           <div className="hidden md:flex items-center gap-4 text-sm">
             <a 
-              href="mailto:support@pharmly.com" 
+              href="mailto:imravipanday@gmail.com" 
               className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
-              <span>support@pharmly.com</span>
+              <span>imravipanday@gmail.com</span>
             </a>
             <a 
-              href="tel:+911800123456" 
+              href="tel:+917058548204" 
               className="flex items-center gap-2 text-gray-600 hover:text-teal-600 transition-colors"
             >
               <Phone className="w-4 h-4" />
-              <span>1800-123-456</span>
+              <span>+91 70585 48204</span>
             </a>
           </div>
 
@@ -64,11 +62,11 @@ export default function Footer() {
           </div>
           <div className="hidden sm:block w-px h-4 bg-gray-300"></div>
           <div className="text-gray-600">
-            ✓ Used by 500+ medical stores
+            ✓ Used by 100+ medical stores
           </div>
           <div className="hidden sm:block w-px h-4 bg-gray-300"></div>
           <div className="text-gray-600">
-            ⭐ 4.9/5 average rating
+            ⭐ 4.2/5 average rating
           </div>
         </div>
 
