@@ -36,6 +36,7 @@ interface BillItemInput {
   name: string;
   price: number;
   quantity: number;
+  stripQuantity?: number; // Number of medicines in one strip
 }
 
 interface CreateBillInput {
@@ -52,7 +53,8 @@ export const createBill = async (
     name: item.name,
     price: item.price,
     quantity: item.quantity,
-    total: item.price * item.quantity
+    total: item.price * item.quantity,
+    stripQuantity: item.stripQuantity
   }));
 
   const subtotal = itemsWithTotal.reduce(

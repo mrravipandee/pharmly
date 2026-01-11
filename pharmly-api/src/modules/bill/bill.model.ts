@@ -5,6 +5,7 @@ interface BillItem {
   price: number;
   quantity: number;
   total: number;
+  stripQuantity?: number; // Number of tablets/medicines in one strip
 }
 
 export interface BillDocument extends Document {
@@ -26,7 +27,8 @@ const billSchema = new Schema<BillDocument>(
         name: String,
         price: Number,
         quantity: Number,
-        total: Number
+        total: Number,
+        stripQuantity: Number
       }
     ],
     subtotal: Number,
@@ -37,9 +39,6 @@ const billSchema = new Schema<BillDocument>(
 );
 
 /* 🔥 INDEXES */
-
-/** For public bill lookup */
-billSchema.index({ _id: 1 });
 
 /** For customer bill history */
 billSchema.index({ customerId: 1, createdAt: -1 });

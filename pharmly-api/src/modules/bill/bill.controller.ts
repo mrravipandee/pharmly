@@ -209,3 +209,153 @@ export const getPublicBillHandler = async (
     return res.status(500).json({ success: false });
   }
 };
+
+/**
+ * Update a bill
+ * PUT /api/bills/:id
+ * Only the store that created the bill can update it
+ */
+export const updateBillHandler = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const { id } = req.params;
+    const storeId = new Types.ObjectId(req.userId);
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid bill ID"
+      });
+    }
+
+    // Find the bill
+    const bill = await Bill.findById(id);
+
+    if (!bill) {
+      return res.status(404).json({
+        success: false,
+        message: "Bill not found"
+      });
+    }
+
+    // Check if the store owns this bill
+    if (bill.storeId.toString() !== storeId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to edit this bill"
+      });
+    }
+
+    // Update bill data
+    const { items, discountPercent } = req.body;
+
+    if (items && Array.isArray(items)) {
+      // Recalculate totals
+      let subtotal = 0;
+      const updatedItems = items.map((item: any) => {
+        const total = item.price * item.quantity;
+        subtotal += total;
+        return {
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          total,
+          stripQuantity: item.stripQuantity
+        };
+      });
+
+      bill.items = updatedItems;
+      bill.subtotal = subtotal;
+    }
+
+    if (discountPercent !== undefined) {
+      bill.discountPercent = discountPercent;
+    }
+
+    // Recalculate final amount
+    bill.finalAmount = bill.subtotal - (bill.subtotal * bill.discountPercent / 100);
+
+    await bill.save();
+
+    return res.json({
+      success: true,
+      bill,
+      message: "Bill updated successfully"
+    });
+  } catch (error: unknown) {
+    console.error("Error updating bill:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update bill"
+    });
+  }
+};
+
+/**
+ * Delete a bill
+ * DELETE /api/bills/:id
+ * Only the store that created the bill can delete it
+ */
+export const deleteBillHandler = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
+    }
+
+    const { id } = req.params;
+    const storeId = new Types.ObjectId(req.userId);
+
+    if (!Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid bill ID"
+      });
+    }
+
+    // Find the bill
+    const bill = await Bill.findById(id);
+
+    if (!bill) {
+      return res.status(404).json({
+        success: false,
+        message: "Bill not found"
+      });
+    }
+
+    // Check if the store owns this bill
+    if (bill.storeId.toString() !== storeId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You don't have permission to delete this bill"
+      });
+    }
+
+    await Bill.findByIdAndDelete(id);
+
+    return res.json({
+      success: true,
+      message: "Bill deleted successfully"
+    });
+  } catch (error: unknown) {
+    console.error("Error deleting bill:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete bill"
+    });
+  }
+};
