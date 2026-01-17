@@ -15,7 +15,6 @@ export const getTodayTotal = async (
     {
       $match: {
         storeId,
-        status: "active",
         createdAt: { $gte: start, $lt: end }
       }
     },
@@ -33,7 +32,6 @@ export const getDailyTotals = async (
     {
       $match: {
         storeId,
-        status: "active",
         createdAt: { $gte: start, $lt: end }
       }
     },
@@ -54,7 +52,7 @@ export const getRecentBills = async (
   storeId: Types.ObjectId,
   limit = 10
 ) => {
-  return Bill.find({ storeId, status: "active" })
+  return Bill.find({ storeId })
     .sort({ createdAt: -1 })
     .limit(limit)
     .select("finalAmount createdAt customerId")
