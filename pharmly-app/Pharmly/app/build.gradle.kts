@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "co.in.pharmly"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "co.in.pharmly"
@@ -50,6 +48,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    
+    // Material Icons Extended for more icons
+    implementation("androidx.compose.material:material-icons-extended:1.7.6")
     
     // Retrofit for API calls
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

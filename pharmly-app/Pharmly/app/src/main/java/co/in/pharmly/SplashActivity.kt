@@ -71,9 +71,9 @@ fun SplashScreen(onTimeout: () -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Pharmly.co.in",
+                text = "Pharmly",
                 color = Color.White,
-                fontSize = 48.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
             
