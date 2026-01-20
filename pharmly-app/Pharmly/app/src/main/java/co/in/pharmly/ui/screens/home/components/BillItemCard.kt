@@ -52,7 +52,7 @@ fun BillItemCard(bill: Bill) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = bill.customerId.name.ifEmpty { "Unknown Customer" },
+                    text = bill.customerId?.name?.ifEmpty { "Unknown Customer" } ?: "Unknown Customer",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0xFF1F2937),
@@ -60,7 +60,7 @@ fun BillItemCard(bill: Bill) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = bill.customerId.whatsappNumber.ifEmpty { "No phone" },
+                    text = bill.customerId?.whatsappNumber?.ifEmpty { "No phone" } ?: "No phone",
                     fontSize = 13.sp,
                     color = Color.Gray,
                     maxLines = 1

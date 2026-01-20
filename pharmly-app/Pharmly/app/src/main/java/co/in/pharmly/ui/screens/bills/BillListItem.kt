@@ -59,7 +59,7 @@ fun BillListItem(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = bill.customerId.name.ifEmpty { "Unknown Customer" },
+                        text = bill.customerId?.name?.ifEmpty { "Unknown Customer" } ?: "Unknown Customer",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF1F2937),
@@ -67,7 +67,7 @@ fun BillListItem(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = bill.customerId.whatsappNumber.ifEmpty { "No phone" },
+                        text = bill.customerId?.whatsappNumber?.ifEmpty { "No phone" } ?: "Unknow Phone",
                         fontSize = 14.sp,
                         color = Color.Gray,
                         maxLines = 1
