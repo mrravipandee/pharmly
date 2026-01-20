@@ -30,10 +30,12 @@ fun HomeScreen(storeName: String) {
     var dashboardStats by remember { mutableStateOf<DashboardStats?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var billToDelete by remember { mutableStateOf<String?>(null) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    fun loadBills() {
         scope.launch {
             try {
                 isLoading = true
@@ -73,7 +75,7 @@ fun HomeScreen(storeName: String) {
                     }
                     
                     val todaySales = todayBills.sumOf { it.finalAmount }
-                    val uniqueCustomers = todayBills.map { it.customerId.id }.toSet().size
+                    val uniqueCustomers = todayBills.mapNotNull { it.customerId?.id }.toSet().size
                     val avgBill = if (todayBills.isNotEmpty()) todaySales / todayBills.size else 0.0
                     
                     dashboardStats = DashboardStats(
@@ -93,6 +95,55 @@ fun HomeScreen(storeName: String) {
                 isLoading = false
             }
         }
+    }
+
+    fun deleteBill(billId: String) {
+        scope.launch {
+            try {
+                val token = TokenManager.getToken(context)
+                if (token.isNullOrEmpty()) return@launch
+                
+                val response = RetrofitClient.apiService.deleteBill("Bearer $token", billId)
+                if (response.isSuccessful) {
+                    // Reload bills after successful deletion
+                    loadBills()
+                } else {
+                    errorMessage = "Failed to delete bill"
+                }
+            } catch (e: Exception) {
+                Log.e("HomeScreen", "Error deleting bill", e)
+                errorMessage = "Error deleting bill: ${e.message}"
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        loadBills()
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog && billToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Bill") },
+            text = { Text("Are you sure you want to delete this bill? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        billToDelete?.let { deleteBill(it) }
+                        showDeleteDialog = false
+                        billToDelete = null
+                    }
+                ) {
+                    Text("Delete", color = Color(0xFFEF4444))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     LazyColumn(
@@ -290,7 +341,13 @@ fun HomeScreen(storeName: String) {
                     items = stats.recentBills,
                     key = { bill -> bill.id }
                 ) { bill ->
-                    BillItemCard(bill)
+                    BillItemCard(
+                        bill = bill,
+                        onDelete = { billId ->
+                            billToDelete = billId
+                            showDeleteDialog = true
+                        }
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }

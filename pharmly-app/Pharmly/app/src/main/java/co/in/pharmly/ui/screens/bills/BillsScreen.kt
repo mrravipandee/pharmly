@@ -31,7 +31,7 @@ fun BillsScreen() {
     val context = androidx.compose.ui.platform.LocalContext.current
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
+    fun loadBills() {
         scope.launch {
             try {
                 isLoading = true
@@ -58,6 +58,30 @@ fun BillsScreen() {
                 isLoading = false
             }
         }
+    }
+
+    fun deleteBill(billId: String) {
+        scope.launch {
+            try {
+                val token = TokenManager.getToken(context)
+                if (token.isNullOrEmpty()) return@launch
+                
+                val response = RetrofitClient.apiService.deleteBill("Bearer $token", billId)
+                if (response.isSuccessful) {
+                    // Reload bills after successful deletion
+                    loadBills()
+                } else {
+                    errorMessage = "Failed to delete bill"
+                }
+            } catch (e: Exception) {
+                Log.e("BillsScreen", "Error deleting bill", e)
+                errorMessage = "Error deleting bill: ${e.message}"
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        loadBills()
     }
 
     Box(
@@ -168,7 +192,6 @@ fun BillsScreen() {
                         ) { bill ->
                             BillListItem(
                                 bill = bill,
-                                onViewClick = { /* TODO: Navigate to bill detail */ },
                                 onDeleteClick = {
                                     billToDelete = bill
                                     showDeleteDialog = true
@@ -195,12 +218,12 @@ fun BillsScreen() {
                     )
                 },
                 text = {
-                    Text("Are you sure you want to delete this bill for ${billToDelete?.customerId?.name}?")
+                    Text("Are you sure you want to delete this bill for ${billToDelete?.customerId?.name ?: "Unknown Customer"}? This action cannot be undone.")
                 },
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            // TODO: Implement delete API call
+                            billToDelete?.id?.let { deleteBill(it) }
                             showDeleteDialog = false
                             billToDelete = null
                         },
