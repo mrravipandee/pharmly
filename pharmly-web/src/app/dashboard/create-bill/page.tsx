@@ -181,7 +181,8 @@ async function createBill(billData: unknown): Promise<CreateBillResponse> {
       "Authorization": `Bearer ${token}`
     };
 
-    console.log("Creating bill with token:", token.substring(0, 20) + "...");
+    console.log("📤 Creating bill with data:", billData);
+    console.log("🔑 Auth token:", token.substring(0, 20) + "...");
 
     const res = await fetch(`/api/bills`, {
       method: "POST",
@@ -189,15 +190,19 @@ async function createBill(billData: unknown): Promise<CreateBillResponse> {
       body: JSON.stringify(billData)
     });
 
+    console.log("📥 Response status:", res.status);
+
     if (!res.ok) {
       const error = await res.json();
-      console.error("Create bill failed:", res.status, error);
+      console.error("❌ Create bill failed:", res.status, error);
       throw new Error(error.message || `Failed to create bill (${res.status})`);
     }
 
-    return await res.json();
+    const result = await res.json();
+    console.log("✅ Bill created successfully:", result);
+    return result;
   } catch (error) {
-    console.error("Error creating bill:", error);
+    console.error("❌ Error creating bill:", error);
     throw error;
   }
 }
@@ -621,40 +626,57 @@ export default function CreateBillPage() {
             </div>
 
             {/* WhatsApp Input */}
-            <FormField
-              label="WhatsApp Number"
-              icon={Phone}
-              type="tel"
-              value={whatsappNumber}
-              onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-              placeholder="9876543210"
-              required
-              className="mb-4"
-            />
+            <div className="relative">
+              <FormField
+                label="WhatsApp Number"
+                icon={Phone}
+                type="tel"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="9876543210"
+                required
+                className="mb-2"
+              />
+              {whatsappNumber.length === 10 && !searchingPatient && !existingPatient && (
+                <p className="text-xs text-gray-500 ml-1 mb-4">
+                  ✓ Ready to check customer
+                </p>
+              )}
+            </div>
 
             {/* Patient Search Status */}
             {searchingPatient && (
-              <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-4">
-                <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin" />
-                <span>Checking patient details...</span>
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-blue-600 mb-4 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="font-medium">Checking if customer exists in database...</span>
               </div>
             )}
 
             {/* Existing Patient Info */}
             {existingPatient && !searchingPatient && (
-              <div className="mb-4 p-3 sm:p-4 rounded-xl bg-teal-50 border border-teal-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-teal-600" />
-                      <span className="text-sm sm:text-base font-medium text-gray-900">{existingPatient.name}</span>
+              <div className="mb-4 p-4 rounded-xl bg-gradient-to-r from-teal-50 to-green-50 border-2 border-teal-200 shadow-sm animate-in slide-in-from-top duration-300">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1 bg-teal-600 rounded-full">
+                        <CheckCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-base font-bold text-gray-900">{existingPatient.name}</span>
                     </div>
                     {existingPatient.age && (
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        Age: {existingPatient.age} • {existingPatient.gender || "Not specified"}
+                      <p className="text-sm text-gray-700 ml-7 mb-1">
+                        <strong>Age:</strong> {existingPatient.age} years • <strong>Gender:</strong> {existingPatient.gender || "Not specified"}
                       </p>
                     )}
-                    <p className="text-xs text-teal-600 mt-1">✓ Existing customer found</p>
+                    {existingPatient.whatsappNumber && (
+                      <p className="text-sm text-gray-700 ml-7 mb-2">
+                        <strong>Phone:</strong> {existingPatient.whatsappNumber}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1 ml-7">
+                      <div className="h-1.5 w-1.5 bg-teal-600 rounded-full animate-pulse"></div>
+                      <p className="text-xs font-semibold text-teal-700">Existing customer - Information auto-filled</p>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -667,7 +689,7 @@ export default function CreateBillPage() {
                         gender: existingPatient.gender || ""
                       });
                     }}
-                    className="text-xs sm:text-sm font-medium text-teal-600 hover:text-teal-700"
+                    className="text-sm font-semibold text-teal-600 hover:text-teal-800 hover:underline transition-colors"
                   >
                     Edit
                   </button>
@@ -679,74 +701,97 @@ export default function CreateBillPage() {
             {!existingPatient && whatsappNumber.length >= 10 && !searchingPatient && (
               <div className="mb-4">
                 {!showPatientForm ? (
-                  <button
-                    type="button"
-                    onClick={() => setShowPatientForm(true)}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 hover:border-teal-300 hover:bg-teal-50 p-3 sm:p-4 text-xs sm:text-sm font-medium text-gray-600 hover:text-teal-600 transition-colors"
-                  >
-                    <UserPlus className="w-3 h-3 sm:w-4 sm:h-4" />
-                    Add customer details (optional)
-                  </button>
+                  <div className="space-y-3">
+                    <div className="p-4 rounded-xl border-2 border-amber-200 bg-amber-50">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-amber-900 mb-1">New Customer</p>
+                          <p className="text-xs text-amber-700">This phone number is not registered yet. Would you like to add customer details?</p>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowPatientForm(true)}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-teal-300 hover:border-teal-400 bg-white hover:bg-teal-50 p-4 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-all shadow-sm hover:shadow"
+                    >
+                      <UserPlus className="w-5 h-5" />
+                      Add Customer Details (Optional)
+                    </button>
+                    <p className="text-xs text-center text-gray-500">You can skip this and create a bill with just the phone number</p>
+                  </div>
                 ) : (
-                  <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 rounded-xl border border-gray-200 bg-gray-50">
+                  <div className="space-y-3 sm:space-y-4 p-4 rounded-xl border-2 border-teal-200 bg-gradient-to-b from-white to-teal-50 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm sm:text-base font-medium text-gray-900">New Customer Details</h3>
+                      <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-teal-600" />
+                        New Customer Details
+                      </h3>
                       <button
                         type="button"
-                        onClick={() => setShowPatientForm(false)}
-                        className="text-gray-400 hover:text-gray-600"
+                        onClick={() => {
+                          setShowPatientForm(false);
+                          setPatientForm({ name: "", age: "", gender: "" });
+                        }}
+                        className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1 rounded-lg transition-colors"
                       >
-                        <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <X className="w-5 h-5" />
                       </button>
                     </div>
 
-                    <FormField
-                      label="Full Name"
-                      icon={User}
-                      type="text"
-                      value={patientForm.name}
-                      onChange={(e) => handlePatientFormChange("name", e.target.value)}
-                      placeholder="Enter customer name"
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white rounded-lg p-3 space-y-3">
                       <FormField
-                        label="Age"
-                        icon={Calendar}
-                        type="number"
-                        value={patientForm.age}
-                        onChange={(e) => handlePatientFormChange("age", e.target.value)}
-                        placeholder="Age"
-                        min="0"
-                        max="120"
+                        label="Full Name"
+                        icon={User}
+                        type="text"
+                        value={patientForm.name}
+                        onChange={(e) => handlePatientFormChange("name", e.target.value)}
+                        placeholder="Enter customer name"
                       />
 
-                      <div className="space-y-1.5 group">
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide ml-1">
-                          Gender
-                        </label>
-                        <div className="relative flex items-center bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
-                          <div className="pl-4 pr-3 py-3">
-                            <VenusAndMars className="w-5 h-5 text-gray-400" />
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          label="Age"
+                          icon={Calendar}
+                          type="number"
+                          value={patientForm.age}
+                          onChange={(e) => handlePatientFormChange("age", e.target.value)}
+                          placeholder="Age"
+                          min="0"
+                          max="120"
+                        />
+
+                        <div className="space-y-1.5 group">
+                          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide ml-1">
+                            Gender
+                          </label>
+                          <div className="relative flex items-center bg-white border border-gray-200 rounded-xl hover:border-gray-300 transition-colors">
+                            <div className="pl-4 pr-3 py-3">
+                              <VenusAndMars className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div className="h-6 w-px bg-gray-200 mx-1" />
+                            <select
+                              value={patientForm.gender}
+                              onChange={(e) => handlePatientFormChange("gender", e.target.value)}
+                              className="w-full px-3 py-3 bg-transparent border-none focus:outline-none text-gray-800 font-medium appearance-none"
+                            >
+                              <option value="">Select Gender</option>
+                              <option value="male">Male</option>
+                              <option value="female">Female</option>
+                              <option value="other">Other</option>
+                            </select>
                           </div>
-                          <div className="h-6 w-px bg-gray-200 mx-1" />
-                          <select
-                            value={patientForm.gender}
-                            onChange={(e) => handlePatientFormChange("gender", e.target.value)}
-                            className="w-full px-3 py-3 bg-transparent border-none focus:outline-none text-gray-800 font-medium appearance-none"
-                          >
-                            <option value="">Select Gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </select>
                         </div>
                       </div>
                     </div>
 
-                    <p className="text-xs text-gray-500 text-center">
-                      These details help provide better service on future visits
-                    </p>
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-50 border border-blue-100">
+                      <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-blue-700">
+                        These details help provide better service on future visits and build customer history
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>

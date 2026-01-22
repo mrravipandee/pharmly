@@ -11,7 +11,8 @@ import {
   ArrowRight,
   Edit2,
   Trash2,
-  X
+  X,
+  Share2
 } from "lucide-react";
 
 interface Bill {
@@ -121,6 +122,20 @@ export default function BillsPage() {
       console.error(err);
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleShareBill = (bill: Bill) => {
+    const phoneNumber = bill.customerId?.whatsappNumber || "";
+    if (phoneNumber) {
+      const billUrl = `${window.location.origin}/bill/${bill._id}`;
+      const customerName = bill.customerId?.name || "Customer";
+      const amount = bill.finalAmount.toFixed(2);
+      
+      const message = `Hello ${customerName}! 👋\n\nYour bill is ready!\n\n💊 Total Amount: ₹${amount}\n📄 View your bill: ${billUrl}\n\nThank you for your purchase! 🙏`;
+      
+      const whatsappUrl = `https://wa.me/91${phoneNumber}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
     }
   };
 
@@ -269,6 +284,14 @@ export default function BillsPage() {
                     <span className="hidden sm:inline">{formatTime(bill.createdAt)}</span>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleShareBill(bill)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs md:text-sm font-medium transition-colors"
+                      title="Share on WhatsApp"
+                    >
+                      <Share2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                      <span>Share</span>
+                    </button>
                     <Link
                       href={`/bill/${bill._id}`}
                       className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs md:text-sm font-medium transition-colors"
@@ -278,10 +301,10 @@ export default function BillsPage() {
                     </Link>
                     <button
                       onClick={() => setDeletingBillId(bill._id)}
-                      className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs md:text-sm font-medium transition-colors"
+                      className="inline-flex items-center justify-center p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
                       title="Delete bill"
                     >
-                      <Trash2 className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                      <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                     </button>
                   </div>
                 </div>
