@@ -34,8 +34,11 @@ export const createBillHandler = async (
   res: Response
 ): Promise<Response> => {
   try {
+    console.log("📝 Creating bill - Request received");
+    
     /** 1️⃣ Validate store */
     if (!req.userId) {
+      console.error("❌ No userId in request");
       return res.status(401).json({
         success: false,
         message: "Unauthorized"
@@ -43,14 +46,19 @@ export const createBillHandler = async (
     }
 
     const storeId = new Types.ObjectId(req.userId);
+    console.log(`🏪 Store ID: ${storeId}`);
+    
     const store = await Store.findById(storeId);
 
     if (!store) {
+      console.error(`❌ Store not found: ${storeId}`);
       return res.status(404).json({
         success: false,
         message: "Store not found"
       });
     }
+
+    console.log(`✅ Store found: ${store.name}`);
 
     /** 2️⃣ Validate request body */
     const body = req.body as CreateBillRequestBody;
@@ -61,11 +69,19 @@ export const createBillHandler = async (
       !Array.isArray(body.items) ||
       body.items.length === 0
     ) {
+      console.error("❌ Invalid bill data:", {
+        hasCustomer: !!body.customer,
+        hasWhatsapp: !!body.customer?.whatsappNumber,
+        itemsCount: body.items?.length || 0
+      });
       return res.status(400).json({
         success: false,
         message: "Invalid bill data"
       });
     }
+
+    console.log(`👤 Customer: ${body.customer.name} (${body.customer.whatsappNumber})`);
+    console.log(`📦 Items: ${body.items.length}`);
 
     /** 3️⃣ Map gender to sex and handle optional fields */
     const customerAge = body.customer.age 
@@ -78,6 +94,7 @@ export const createBillHandler = async (
                           : "male");
 
     /** 4️⃣ Find or create customer */
+    console.log(`🔍 Finding or creating customer...`);
     const customer = await findOrCreateCustomer({
       name: body.customer.name || "Customer",
       age: customerAge,
@@ -86,18 +103,25 @@ export const createBillHandler = async (
       storeId
     });
 
+    console.log(`✅ Customer ready: ${customer._id}`);
+
     /** 5️⃣ Use discount from request or store default */
     const discountPercent = body.discountPercent !== undefined 
       ? body.discountPercent 
       : store.discountPercent;
 
+    console.log(`💰 Discount: ${discountPercent}%`);
+
     /** 6️⃣ Create bill */
+    console.log(`📄 Creating bill...`);
     const bill = await createBill({
       storeId,
       customerId: customer._id,
       items: body.items,
       discountPercent
     });
+
+    console.log(`✅ Bill created: ${bill._id}`);
 
     /** 7️⃣ Generate WhatsApp message */
     const whatsappMessage = generateWhatsAppMessage({
@@ -111,6 +135,7 @@ export const createBillHandler = async (
     });
 
     /** 8️⃣ Final response */
+    console.log(`✅ Bill creation complete`);
     return res.status(201).json({
       success: true,
       billId: bill._id.toString(),
@@ -122,7 +147,10 @@ export const createBillHandler = async (
       whatsappMessage
     });
   } catch (error: unknown) {
+    console.error("❌ Error creating bill:", error);
     if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
       return res.status(400).json({
         success: false,
         message: error.message

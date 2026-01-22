@@ -79,16 +79,30 @@ export const searchCustomer = async (
       });
     }
 
+    // Normalize phone number - remove spaces, dashes, and country code
+    const normalizedNumber = whatsappNumber.replace(/[\s\-\+]/g, '').replace(/^91/, '');
+    
+    console.log(`🔍 Searching for customer with number: ${whatsappNumber} (normalized: ${normalizedNumber})`);
+
     // Search globally - any store can find any customer
+    // Try multiple formats to find the customer
     const customer = await Customer.findOne({
-      whatsappNumber
+      $or: [
+        { whatsappNumber: whatsappNumber },
+        { whatsappNumber: normalizedNumber },
+        { whatsappNumber: `+91${normalizedNumber}` },
+        { whatsappNumber: `91${normalizedNumber}` }
+      ]
     });
 
     if (!customer) {
+      console.log(`❌ No customer found for: ${whatsappNumber}`);
       return res.json({
         exists: false
       });
     }
+
+    console.log(`✅ Customer found: ${customer.name} (${customer.whatsappNumber})`);
 
     return res.json({
       exists: true,
