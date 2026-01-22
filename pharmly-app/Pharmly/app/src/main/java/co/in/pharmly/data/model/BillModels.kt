@@ -45,3 +45,55 @@ data class DashboardStats(
     val avgBillValue: Double,
     val recentBills: List<Bill>
 )
+
+data class CreateBillRequest(
+    val customer: CustomerInfo,
+    val items: List<BillItem>,
+    val discountPercent: Int
+)
+
+data class CustomerInfo(
+    val name: String,
+    val whatsappNumber: String,
+    val age: Int? = null,
+    val gender: String? = null
+)
+
+data class CreateBillResponse(
+    val success: Boolean,
+    val billId: String?,
+    val bill: Bill?,
+    val message: String?,
+    val whatsappMessage: String?,
+    val totalAmount: Double?
+)
+
+data class CustomerResponse(
+    val exists: Boolean,
+    val patient: Customer?,
+    val success: Boolean? = null,
+    val message: String? = null
+)
+
+data class CustomersListResponse(
+    val success: Boolean,
+    val customers: List<CustomerDetail>?,
+    val total: Int?,
+    val message: String? = null
+)
+
+data class CustomerDetail(
+    val id: String,
+    val name: String,
+    val age: Int? = null,
+    val gender: String? = null,
+    val whatsappNumber: String
+)
+
+// Customer data class for search response
+data class CustomerSearchData(
+    val name: String?,
+    val age: Int? = null,
+    val gender: String? = null,
+    val whatsappNumber: String?
+)

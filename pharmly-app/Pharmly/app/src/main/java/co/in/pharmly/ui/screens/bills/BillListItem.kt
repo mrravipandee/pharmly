@@ -151,6 +151,56 @@ fun BillListItem(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Share on WhatsApp Button
+                Button(
+                    onClick = {
+                        try {
+                            val phoneNumber = bill.customerId?.whatsappNumber ?: ""
+                            if (phoneNumber.isNotEmpty()) {
+                                val formattedPhone = "91$phoneNumber" // Add country code
+                                val billUrl = "https://pharmly.co.in/bill/${bill.id}"
+                                val customerName = bill.customerId?.name ?: "Customer"
+                                val amount = String.format(Locale.US, "%.2f", bill.finalAmount)
+                                
+                                val message = """
+                                    Hello $customerName! 👋
+                                    
+                                    Your bill is ready!
+                                    
+                                    💊 Total Amount: ₹$amount
+                                    📄 View your bill: $billUrl
+                                    
+                                    Thank you for your purchase! 🙏
+                                """.trimIndent()
+                                
+                                val encodedMessage = Uri.encode(message)
+                                val whatsappUrl = "https://wa.me/$formattedPhone?text=$encodedMessage"
+                                
+                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                    data = Uri.parse(whatsappUrl)
+                                }
+                                context.startActivity(intent)
+                                Log.d("BillListItem", "📱 Opening WhatsApp for: $formattedPhone")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("BillListItem", "Error opening WhatsApp", e)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF25D366) // WhatsApp green
+                    )
+                ) {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = "Share",
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Share", fontSize = 13.sp)
+                }
+                
                 OutlinedButton(
                     onClick = {
                         val url = "https://pharmly.co.in/bill/${bill.id}"
@@ -169,24 +219,19 @@ fun BillListItem(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("View Bill")
+                    Text("View", fontSize = 13.sp)
                 }
                 
-                OutlinedButton(
+                IconButton(
                     onClick = onDeleteClick,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color(0xFFDC2626)
-                    )
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
                         Icons.Filled.Delete,
                         contentDescription = "Delete",
-                        modifier = Modifier.size(16.dp)
+                        tint = Color(0xFFDC2626),
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Delete")
                 }
             }
         }
