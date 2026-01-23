@@ -10,13 +10,16 @@ import co.`in`.pharmly.data.model.LoginRequest
 import co.`in`.pharmly.data.model.RegisterRequest
 import co.`in`.pharmly.data.model.RecentBillsResponse
 import co.`in`.pharmly.data.model.SalesHistoryResponse
+import co.`in`.pharmly.data.model.StoreDetailsResponse
 import co.`in`.pharmly.data.model.TodaySummaryResponse
+import co.`in`.pharmly.data.model.UpdateStoreRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -69,4 +72,16 @@ interface PharmlyApiService {
     suspend fun getRecentBills(
         @Header("Authorization") token: String
     ): Response<RecentBillsResponse>
+    
+    // Store endpoints
+    @GET("stores/details")
+    suspend fun getStoreDetails(
+        @Header("Authorization") token: String
+    ): Response<StoreDetailsResponse>
+    
+    @PUT("stores/details")
+    suspend fun updateStoreDetails(
+        @Header("Authorization") token: String,
+        @Body request: UpdateStoreRequest
+    ): Response<StoreDetailsResponse>
 }

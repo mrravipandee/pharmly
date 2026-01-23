@@ -5,7 +5,23 @@ data class Store(
     val name: String,
     val whatsappNumber: String,
     val secondaryMobileNumber: String?,
-    val gstNumber: String,
+    val gstNumber: String?,
+    val address: String,
+    val city: String,
+    val discountPercent: Int
+)
+
+data class StoreDetailsResponse(
+    val success: Boolean,
+    val store: Store?,
+    val message: String?
+)
+
+data class UpdateStoreRequest(
+    val name: String,
+    val whatsappNumber: String,
+    val secondaryMobileNumber: String?,
+    val gstNumber: String?,
     val address: String,
     val city: String,
     val discountPercent: Int
