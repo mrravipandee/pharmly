@@ -89,12 +89,12 @@ fun CustomersScreen() {
                     color = Color(0xFF14B8A6),
                     shadowElevation = 4.dp
                 ) {
-                    Icon(
-                        Icons.Default.People,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.padding(8.dp).size(28.dp)
-                    )
+//                    Icon(
+//                        Icons.Default.People,
+//                        contentDescription = null,
+//                        tint = Color.White,
+//                        modifier = Modifier.padding(8.dp).size(28.dp)
+//                    )
                 }
                 
                 Column {

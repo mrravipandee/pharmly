@@ -8,6 +8,9 @@ import co.`in`.pharmly.data.model.CustomerResponse
 import co.`in`.pharmly.data.model.CustomersListResponse
 import co.`in`.pharmly.data.model.LoginRequest
 import co.`in`.pharmly.data.model.RegisterRequest
+import co.`in`.pharmly.data.model.RecentBillsResponse
+import co.`in`.pharmly.data.model.SalesHistoryResponse
+import co.`in`.pharmly.data.model.TodaySummaryResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -48,4 +51,22 @@ interface PharmlyApiService {
         @Header("Authorization") token: String,
         @Path("billId") billId: String
     ): Response<Unit>
+    
+    // Analytics endpoints
+    @GET("analytics/today")
+    suspend fun getTodaySummary(
+        @Header("Authorization") token: String
+    ): Response<TodaySummaryResponse>
+    
+    @GET("analytics/history")
+    suspend fun getSalesHistory(
+        @Header("Authorization") token: String,
+        @Query("from") from: String,
+        @Query("to") to: String
+    ): Response<SalesHistoryResponse>
+    
+    @GET("analytics/recent-bills")
+    suspend fun getRecentBills(
+        @Header("Authorization") token: String
+    ): Response<RecentBillsResponse>
 }

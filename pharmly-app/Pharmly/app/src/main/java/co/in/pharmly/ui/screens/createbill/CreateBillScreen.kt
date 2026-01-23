@@ -344,12 +344,12 @@ fun CreateBillScreen() {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(
-                        Icons.Default.ShoppingCart,
-                        contentDescription = null,
-                        tint = Color(0xFF14B8A6),
-                        modifier = Modifier.size(32.dp)
-                    )
+//                    Icon(
+//                        Icons.Default.ShoppingCart,
+//                        contentDescription = null,
+//                        tint = Color(0xFF14B8A6),
+//                        modifier = Modifier.size(32.dp)
+//                    )
                     Text(
                         text = "Create New Bill",
                         fontSize = 28.sp,
