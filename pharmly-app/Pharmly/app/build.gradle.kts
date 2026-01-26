@@ -49,6 +49,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     
+    // Android 12 Splash Screen API
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    
     // Material Icons Extended for more icons
     implementation("androidx.compose.material:material-icons-extended:1.7.6")
     

@@ -85,6 +85,10 @@ fun AnalyticsScreen() {
                                 0.0
                             }
                             growthPercent = data?.growthPercent ?: 0.0
+                        } else {
+                            val errorBody = summaryResponse.errorBody()?.string()
+                            errorMessage = "Failed to fetch summary: ${summaryResponse.code()} - ${errorBody ?: summaryResponse.message()}"
+                            return@launch
                         }
                         
                         // Get recent bills for counting
@@ -98,6 +102,10 @@ fun AnalyticsScreen() {
                             
                             // Calculate average
                             averageBillValue = if (totalBills > 0) totalSales / totalBills else 0.0
+                        } else {
+                            val errorBody = billsResponse.errorBody()?.string()
+                            errorMessage = "Failed to fetch bills: ${billsResponse.code()} - ${errorBody ?: billsResponse.message()}"
+                            return@launch
                         }
                     }
                     
@@ -117,6 +125,10 @@ fun AnalyticsScreen() {
                         if (historyResponse.isSuccessful && historyResponse.body()?.success == true) {
                             salesHistory = historyResponse.body()?.data ?: emptyList()
                             totalSales = salesHistory.sumOf { it.total }
+                        } else {
+                            val errorBody = historyResponse.errorBody()?.string()
+                            errorMessage = "Failed to fetch history: ${historyResponse.code()} - ${errorBody ?: historyResponse.message()}"
+                            return@launch
                         }
                         
                         // Get recent bills
@@ -166,7 +178,8 @@ fun AnalyticsScreen() {
                 }
                 
             } catch (e: Exception) {
-                errorMessage = "Failed to load analytics: ${e.message}"
+                errorMessage = "Failed to load analytics: ${e.javaClass.simpleName} - ${e.message}"
+                android.util.Log.e("AnalyticsScreen", "Error loading analytics", e)
             } finally {
                 isLoading = false
             }

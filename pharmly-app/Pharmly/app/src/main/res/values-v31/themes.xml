@@ -2,7 +2,7 @@
 <resources>
 
     <style name="Theme.Pharmly" parent="android:Theme.Material.Light.NoActionBar">
-        <!-- Splash Screen API attributes -->
+        <!-- Splash Screen API attributes for Android 12+ -->
         <item name="android:windowSplashScreenBackground">#085156</item>
         <item name="postSplashScreenTheme">@style/Theme.Pharmly.PostSplash</item>
     </style>

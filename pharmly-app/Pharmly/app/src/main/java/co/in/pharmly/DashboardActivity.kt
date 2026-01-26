@@ -34,14 +34,22 @@ class DashboardActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PharmlyTheme {
-                MainDashboardScreen(
-                    storeName = TokenManager.getStoreName(this) ?: "User",
-                    onLogout = {
-                        TokenManager.clearAll(this)
-                        startActivity(Intent(this@DashboardActivity, MainActivity::class.java))
-                        finish()
+                var showSplash by remember { mutableStateOf(true) }
+                
+                if (showSplash) {
+                    co.`in`.pharmly.ui.components.SplashContent {
+                        showSplash = false
                     }
-                )
+                } else {
+                    MainDashboardScreen(
+                        storeName = TokenManager.getStoreName(this) ?: "User",
+                        onLogout = {
+                            TokenManager.clearAll(this)
+                            startActivity(Intent(this@DashboardActivity, MainActivity::class.java))
+                            finish()
+                        }
+                    )
+                }
             }
         }
     }

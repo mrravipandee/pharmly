@@ -18,9 +18,9 @@
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
         
-        <!-- Splash Screen as the launcher activity -->
+        <!-- Launcher activity with SplashScreen API -->
         <activity
-            android:name=".SplashActivity"
+            android:name=".LauncherActivity"
             android:exported="true"
             android:theme="@style/Theme.Pharmly">
             <intent-filter>
