@@ -1,5 +1,5 @@
 // This avoids CORS issues in both development and production
-const API_BASE = '';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export interface RegisterPayload {
   name: string;
