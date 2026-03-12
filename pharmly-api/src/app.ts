@@ -16,11 +16,11 @@ const corsOptions = {
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  credentials: true
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 };
 
-// Handle preflight requests
-app.options("*", cors(corsOptions));
 app.use(cors(corsOptions));
 
 app.use(express.json());
