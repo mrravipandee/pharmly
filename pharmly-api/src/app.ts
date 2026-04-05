@@ -5,41 +5,47 @@ import routes from "./routes";
 const app: Application = express();
 
 /**
- * ✅ CORS — FIXED (PRODUCTION READY)
+ * ✅ CORS — PRODUCTION READY
  */
 const allowedOrigins = [
+  // Development
   "http://localhost:3000",
   "http://localhost:4000",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:4000",
+  // Production
   "https://pharmly.co.in",
   "https://www.pharmly.co.in",
   "https://pharmly-web.onrender.com",
+  "https://pharmly-api.onrender.com",
+  // Environment variable
   process.env.FRONTEND_URL
-].filter((origin): origin is string => Boolean(origin));
-
+].filter((origin): origin is string => Boolean(origin) && origin !== "undefined");
 
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    console.log("Incoming Origin:", origin);
-
-    // ✅ Allow requests without origin (Postman etc.)
+    // Allow requests without origin (server-to-server, Postman, mobile apps)
     if (!origin) return callback(null, true);
 
-    // ✅ Allow localhost (your current frontend)
-    if (origin.startsWith("http://localhost")) {
-      return callback(null, true);
-    }
-
-    // ✅ Allow production domains
+    // Allow if origin is in whitelist
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
-    console.log("❌ Blocked by CORS:", origin);
+    // Allow localhost variations
+    if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
+      return callback(null, true);
+    }
 
-    // 🔥 IMPORTANT FIX (do NOT throw error)
-    return callback(null, false);
+    console.warn(`❌ CORS blocked origin: ${origin}`);
+    return callback(new Error("CORS not allowed"));
   },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  exposedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200,
+  maxAge: 86400 // 24 hours
 };
 
 // 🔥 VERY IMPORTANT

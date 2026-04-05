@@ -21,12 +21,7 @@ export const createStore = async (
     throw new Error("Store already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(data.password, 10);
-
-  const store = await Store.create({
-    ...data,
-    password: hashedPassword
-  });
+  const store = await Store.create(data);
 
   return store;
 };
