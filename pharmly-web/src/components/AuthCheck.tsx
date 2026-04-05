@@ -15,17 +15,13 @@ export default function AuthCheck({ children }: AuthCheckProps) {
     // Get token from localStorage
     const token = localStorage.getItem("token");
 
-    // Pages that don't require authentication
-    const publicPages = ["/", "/login", "/register"];
-    const isPublicPage = publicPages.includes(pathname);
-
     if (token) {
-      // User has token - redirect to dashboard if on public pages
-      if (isPublicPage && pathname !== "/dashboard") {
+      // User has token - only redirect to dashboard from landing page
+      if (pathname === "/") {
         router.push("/dashboard");
       }
     } else {
-      // User doesn't have token - redirect to landing if accessing dashboard
+      // User doesn't have token - redirect to landing from protected pages
       if (pathname.startsWith("/dashboard") || pathname.startsWith("/bill")) {
         router.push("/");
       }
