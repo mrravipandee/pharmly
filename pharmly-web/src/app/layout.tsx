@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import AuthCheck from "@/components/AuthCheck";
 
 /* ---------------- FONT ---------------- */
 
@@ -88,7 +89,7 @@ export default function RootLayout({
           antialiased
         `}
       >
-        {children}
+        <AuthCheck>{children}</AuthCheck>
       </body>
     </html>
   );

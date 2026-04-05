@@ -2,16 +2,36 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bell, Settings, Store } from "lucide-react";
+import { Bell, Settings, Store, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function TopNavbar() {
   const [storeName, setStoreName] = useState<string>("Medical Store");
+  const [showLogoutMenu, setShowLogoutMenu] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       setStoreName(localStorage.getItem("storeName") || "Medical Store");
     }
   }, []);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      // Clear localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("storeId");
+      localStorage.removeItem("storeName");
+      localStorage.removeItem("storeWhatsapp");
+      localStorage.removeItem("storeAddress");
+      localStorage.removeItem("storeCity");
+      localStorage.removeItem("storeDiscount");
+      
+      // Clear cookies
+      document.cookie = "pharmly_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+    router.push("/");
+  };
 
   return (
     <div className="sticky top-0 z-20 md:px-0">
@@ -44,7 +64,7 @@ export default function TopNavbar() {
         </div>
 
         {/* RIGHT: Actions */}
-        <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex items-center gap-2 md:gap-4 relative">
           {/* Notification */}
           <button
             type="button"
@@ -61,6 +81,30 @@ export default function TopNavbar() {
           >
             <Settings className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
           </Link>
+
+          {/* Logout */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowLogoutMenu(!showLogoutMenu)}
+              className="rounded-lg p-2 hover:bg-gray-100 transition"
+              title="Logout"
+            >
+              <LogOut className="h-4 w-4 md:h-5 md:w-5 text-gray-600" />
+            </button>
+            
+            {showLogoutMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
