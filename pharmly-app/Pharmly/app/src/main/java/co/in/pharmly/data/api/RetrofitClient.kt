@@ -9,7 +9,7 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    private const val BASE_URL = "https://pharmly.co.in/api/"
+    private const val BASE_URL = "https://pharmly.onrender.com/api/"
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
