@@ -11,16 +11,19 @@ export const requireAuth = (
   next: NextFunction
 ): Response | void => {
 
-  // ✅ ADD THIS (MOST IMPORTANT LINE)
+  // ✅ CRITICAL FIX: STOP here for preflight
   if (req.method === "OPTIONS") {
-    return next();
+    return res.sendStatus(200);
   }
 
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized"
+      });
     }
 
     const token = authHeader.split(" ")[1];
@@ -29,11 +32,18 @@ export const requireAuth = (
       throw new Error("JWT_SECRET missing");
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    ) as JwtPayload;
 
     req.userId = decoded.storeId;
+
     next();
-  } catch {
-    return res.status(401).json({ success: false, message: "Invalid token" });
+  } catch (error) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token"
+    });
   }
 };

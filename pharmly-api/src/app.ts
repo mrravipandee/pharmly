@@ -5,53 +5,58 @@ import routes from "./routes";
 const app: Application = express();
 
 /**
- * ✅ CORS — PRODUCTION READY
+ * ✅ Allowed Origins
  */
 const allowedOrigins = [
-  // Development
-  "http://localhost:3000",
+  "http://localhost:5000",
   "http://localhost:4000",
   "http://127.0.0.1:3000",
   "http://127.0.0.1:4000",
-  // Production
   "https://pharmly.co.in",
   "https://www.pharmly.co.in",
   "https://pharmly-web.onrender.com",
-  "https://pharmly-api.onrender.com",
-  // Environment variable
   process.env.FRONTEND_URL
-].filter((origin): origin is string => Boolean(origin) && origin !== "undefined");
+].filter((origin): origin is string => Boolean(origin));
 
+/**
+ * ✅ CORS Options
+ */
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests without origin (server-to-server, Postman, mobile apps)
     if (!origin) return callback(null, true);
 
-    // Allow if origin is in whitelist
-    if (allowedOrigins.includes(origin)) {
+    if (
+      allowedOrigins.includes(origin) ||
+      origin.startsWith("http://localhost:") ||
+      origin.startsWith("http://127.0.0.1:")
+    ) {
       return callback(null, true);
     }
 
-    // Allow localhost variations
-    if (origin.startsWith("http://localhost:") || origin.startsWith("http://127.0.0.1:")) {
-      return callback(null, true);
-    }
-
-    console.warn(`❌ CORS blocked origin: ${origin}`);
-    return callback(new Error("CORS not allowed"));
+    console.warn("❌ Blocked by CORS:", origin);
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  exposedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200,
-  maxAge: 86400 // 24 hours
+  exposedHeaders: ["Authorization"],
+  optionsSuccessStatus: 200
 };
 
-// 🔥 VERY IMPORTANT
+/**
+ * ✅ FINAL ORDER (IMPORTANT)
+ */
+
+// 1️⃣ CORS
 app.use(cors(corsOptions));
 
+// 2️⃣ Preflight handler (MAIN FIX)
+app.use(cors(corsOptions));
+
+// 3️⃣ Body parser
 app.use(express.json());
+
+// 4️⃣ Routes
 app.use("/api", routes);
 
 export default app;
