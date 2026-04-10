@@ -173,3 +173,44 @@ export const updateStoreDetails = async (
   }
 };
 
+export const deleteStore = async (
+  req: Request,
+  res: Response
+): Promise<Response> => {
+  try {
+    const { whatsappNumber, password } = req.body;
+
+    if (!whatsappNumber || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "WhatsApp number and password are required"
+      });
+    }
+
+    const store = await Store.findOne({ whatsappNumber });
+    if (!store) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const isValid = await validatePassword(password, store.password);
+    if (!isValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials"
+      });
+    }
+
+    const deletedStore = await Store.findByIdAndDelete(store._id);
+
+    return res.json({
+      success: true,
+      message: "Store deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting store:", error);
+    return res.status(500).json({ success: false, message: "Failed to delete store" });
+  }
+};
