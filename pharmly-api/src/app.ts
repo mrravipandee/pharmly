@@ -4,9 +4,6 @@ import routes from "./routes";
 
 const app: Application = express();
 
-/**
- * ✅ Allowed Origins
- */
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:4000",
@@ -19,39 +16,27 @@ const allowedOrigins = [
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-/**
- * ✅ CORS Middleware
- */
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow mobile apps / Postman (no origin)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: (origin: string | undefined, callback: Function) => {
+    if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      console.log("❌ CORS Blocked:", origin);
-      return callback(new Error("Not allowed by CORS"));
-    },
-    credentials: true
-  })
-);
+    console.log("❌ CORS Blocked:", origin);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+};
 
-/**
- * ✅ VERY IMPORTANT (Preflight)
- */
-app.options("*", cors());
+app.use(cors(corsOptions));
 
-/**
- * ✅ Body Parser
- */
+// Preflight (important for browser)
+app.options(/.*/, cors(corsOptions));
+
 app.use(express.json());
 
-/**
- * ✅ Routes
- */
 app.use("/api", routes);
 
 export default app;
