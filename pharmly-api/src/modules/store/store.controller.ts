@@ -4,6 +4,8 @@ import { Store } from "./store.model";
 import { signToken } from "../../utils/jwt";
 import { Types } from "mongoose";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export const registerStore = async (
   req: Request,
   res: Response
@@ -13,20 +15,25 @@ export const registerStore = async (
 
     const token = signToken({ storeId: store._id.toString() });
 
-    return res.status(201).json({
-      success: true,
-      token,
-      store: {
-        id: store._id,
-        name: store.name,
-        whatsappNumber: store.whatsappNumber,
-        secondaryMobileNumber: store.secondaryMobileNumber,
-        gstNumber: store.gstNumber,
-        address: store.address,
-        city: store.city,
-        discountPercent: store.discountPercent
-      }
-    });
+    return res
+      .cookie("pharmly_token", token, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+      }).status(201).json({
+        success: true,
+        token,
+        store: {
+          id: store._id,
+          name: store.name,
+          whatsappNumber: store.whatsappNumber,
+          secondaryMobileNumber: store.secondaryMobileNumber,
+          gstNumber: store.gstNumber,
+          address: store.address,
+          city: store.city,
+          discountPercent: store.discountPercent
+        }
+      });
   } catch (error: unknown) {
     if (error instanceof Error) {
       return res.status(400).json({ success: false, message: error.message });
@@ -58,20 +65,25 @@ export const loginStore = async (
 
     const token = signToken({ storeId: store._id.toString() });
 
-    return res.json({
-      success: true,
-      token,
-      store: {
-        id: store._id,
-        name: store.name,
-        whatsappNumber: store.whatsappNumber,
-        secondaryMobileNumber: store.secondaryMobileNumber,
-        gstNumber: store.gstNumber,
-        address: store.address,
-        city: store.city,
-        discountPercent: store.discountPercent
-      }
-    });
+    return res.cookie("pharmly_token", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax"
+    })
+      .json({
+        success: true,
+        token,
+        store: {
+          id: store._id,
+          name: store.name,
+          whatsappNumber: store.whatsappNumber,
+          secondaryMobileNumber: store.secondaryMobileNumber,
+          gstNumber: store.gstNumber,
+          address: store.address,
+          city: store.city,
+          discountPercent: store.discountPercent
+        }
+      });
   } catch (error: unknown) {
     return res.status(500).json({ success: false });
   }
