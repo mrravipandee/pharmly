@@ -1,5 +1,6 @@
 // This avoids CORS issues in both development and production
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+// Using relative paths that will be proxied through Next.js middleware
+const API_BASE = "http://localhost:4000/api";
 
 export interface RegisterPayload {
   name: string;
@@ -11,7 +12,7 @@ export interface RegisterPayload {
 }
 
 export const registerStore = async (payload: RegisterPayload) => {
-  const res = await fetch(`${API_BASE}/api/stores/register`, {
+  const res = await fetch(`${API_BASE}/stores/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -35,7 +36,7 @@ export interface LoginPayload {
 }
 
 export const loginStore = async (payload: LoginPayload) => {
-  const url = `${API_BASE}/api/stores/login`;
+  const url = `${API_BASE}/stores/login`;
   
   const res = await fetch(url, {
     method: "POST",
@@ -61,7 +62,7 @@ export interface DeleteAccountPayload {
 }
 
 export const deleteAccount = async (payload: DeleteAccountPayload) => {
-  const res = await fetch(`${API_BASE}/api/stores/delete-account`, {
+  const res = await fetch(`${API_BASE}/stores/delete-account`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
