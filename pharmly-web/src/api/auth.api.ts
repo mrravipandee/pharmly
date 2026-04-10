@@ -55,3 +55,27 @@ export const loginStore = async (payload: LoginPayload) => {
   return data; // { token, store }
 };
 
+export interface DeleteAccountPayload {
+  whatsappNumber: string;
+  password: string;
+}
+
+export const deleteAccount = async (payload: DeleteAccountPayload) => {
+  const res = await fetch(`${API_BASE}/api/stores/delete-account`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    credentials: "include",
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to delete account");
+  }
+
+  return data;
+};
+
